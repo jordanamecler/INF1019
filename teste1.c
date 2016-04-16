@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+// compilar esse programa antes de rodar main.c
+
 int main()
 {
 	printf("teste1\n");

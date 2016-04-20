@@ -11,28 +11,28 @@
 
 struct escalonador {
 
-	No *lista_pids;
-	int numPIDs;
+	Lista *listaProcessos;
 
 }
 
-Escalonador criaEscalonador(Escalonador esc) {
-	esc->lista_pids = criaNo();
-	esc->numPIDs = 0;
+Escalonador criaEscalonador() {
+	Escalonador *esc = (Escalonador *)malloc(sizeof(Escalonador));
+	esc->listaProcessos = criaLista();
 	return esc;
 }
 
-Escalonador inserePID(Escalonador esc, pid_t pid) {
-	esc->lista_pids = insereNo(esc->lista_pids, pid);
-	esc->numPIDs++;
+Escalonador insereProcesso(Escalonador esc, char *path) {
+	// fazer as paradas
+	pid_t pid = 0;
+	esc->listaProcessos = insereNo(esc->listaProcessos, pid, path);
+
 }
 
-Escalonador retiraPID(Escalonador esc, pid_t pid) {
-	esc->lista_pids = retiraNo(esc->lista_pids, pid);
-	esc->numPIDs--;
+pid_t retiraPID(Escalonador esc) {
+	return retiraNo(esc->listaProcessos);
 }
 
-Escalonador liberaEscalonador(Escalonador esc) {
-	liberaLista(esc->lista_pids);
-	esc->numPIDs = 0;
+void liberaEscalonador(Escalonador esc) {
+	liberaLista(esc->listaProcessos);
+	free(esc);
 }

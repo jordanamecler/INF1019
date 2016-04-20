@@ -2,13 +2,16 @@
 #define LISTA_H
 
 typedef struct no No;
+typedef struct lista Lista;
 
 No * criaNo();
 
-No *insereNo(No * lista, pid_t pid);
+Lista * criaLista();
 
-No *retiraNo(No *lista, pid_t pid);
+Lista *insereNo(Lista * lst, pid_t pid);
 
-void liberaLista(No * lista);
+pid_t retiraNo(Lista *lst, pid_t pid) ;
+
+void liberaLista(Lista * lst) ;
 
 #endif

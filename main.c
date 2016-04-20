@@ -4,48 +4,56 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include "lista.h"
 #include "escalonador.h"
 
 int main() {
 
-	FILE *entrada;
+	FILE *execarq;
 	char comando[5], path[15], argumento[15];
 	int prioridade = 0, numTickets = 0;
-
+	Escalonador *esc;
 	pid_t pid1;
 
-	entrada = fopen("entrada.txt","r");
-	if(entrada == NULL) {
-		printf("Erro ao abrir entrada.txt\n");
+	execarq = fopen("exec.txt","r");
+	if(execarq == NULL) {
+		printf("Erro ao abrir execarq.txt\n");
 		exit(1);
 	}
 
-	fscanf(entrada, "%s", comando);
+	// Cria escalonador
 
-	while(fscanf(entrada, "%s %s", path, argumento) == 2) {
+	esc = criaEscalonador();
 
-		if(argumento[0] == 'e') {
-			printf("%s %s\n", comando, path);
+	// Interpretador
+
+	while(fscanf(execarq, "%s %s %s", comando, path, argumento) == 3) {
+
+		if (argumento[0] == 'r') {
 			printf("Round-Robin\n\n");
 		}
-		else {
-			printf("%s %s %s\n", comando, path, argumento);
-			if(argumento[0] == 'p') {
+		else if (argumento[0] == 'p') {
+		
+			prioridade = argumento[11] - '0';
+			printf("Prioridade %d\n\n", prioridade);
 
-				prioridade = argumento[11] - '0';
-				printf("Prioridade %d\n\n", prioridade);
-			}	
-			else if(argumento[0] == 'n') {
+			inserePID(esc, 
+
+		}
+		else if (argumento[0] == 'n') {
+
+			if( argumento[12] == '\0' ) {
 				numTickets = argumento[11] - '0';
-				printf("Sorteio de %d tickets\n\n", numTickets);
 			}
 			else {
-				printf("Comando invalido.\n");
-				exit(1);
+				numTickets = (argumento[11] - '0') * 10 + argumento[12] - '0';	
 			}
-			fscanf(entrada, "%s", comando);
+			printf("Sorteio de %d tickets\n\n", numTickets);
 		}
+		else {
+			printf("Comando invalido.\n");
+			exit(1);
+		}
+	}
 
 		// if((pid1 = fork()) < 0) {
 		// 	printf("Erro ao criar processo filho.\n");
@@ -63,9 +71,8 @@ int main() {
 		// 	printf("De volta ao pai.\n");
 		// }
 
-	}
 
-	fclose(entrada);
+	fclose(execarq);
 
 	return 0;
 }

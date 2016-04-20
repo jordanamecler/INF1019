@@ -2,51 +2,80 @@
 #include <stdlib.h>
 #include "lista.h"
 
+struct lista {
+
+	struct no *cabeca;
+	struct no *rabo;
+	int numPIDs;
+
+}
+
 struct no {
 
 	pid_t pid;
+	char *path;
 	struct no * prox;
+	struct no * ant;
 
+}
+
+Lista * criaLista() {
+	
+	Lista *nova = (Lista *)malloc(sizeof(Lista));
+	nova->cabeca = NULL;
+	nova->rabo = NULL;
+	nova->numPIDs = 0;
+
+	return nova;
 }
 
 No * criaNo() {
 	return NULL;
 }
 
-No *insereNo(No * lista, pid_t pid) {
+Lista *insereNo(Lista * lst, pid_t pid, char *path) {
 
 	No * novo = (No *)malloc(sizeof(No));
 	novo->pid = pid;
-	novo->prox = lista;
-	return novo;
+	novo->path = path;
+	novo->prox = lst->cabeca;
+	novo->ant = NULL;
+
+	if (lista != NULL) {
+		novo->prox->ant = novo;	
+	}
+
+	lst->cabeca = novo;
+
+	if (lst->rabo == NULL) {
+		lst->rabo == lst->cabeca;
+	}
+
+	lst->numPIDs++;
+	return lst;
 }
 
-No *retiraNo(No *lista, pid_t pid) {
+pid_t retiraNo(Lista *lst) {
 
-	No * a = NULL;
-	No * p = lista;
+	No *antigoRabo;
+	pid_t pid;
 
-	while(p != NULL && p->pid != pid) {
-		a = p;
-		p = p->prox;
+	if(lst->rabo == NULL) {
+		return -1;
 	}
 
-	if(p == NULL) {
-		return lista;
-	}
-	if(a == NULL) {
-		lista = p->prox;
-	}
-	else {
-		a->prox = p->prox;
-	}
+	antigoRabo = lst->rabo;
+	pid = antigoRabo->pid;
+	lst->rabo = lst->rabo->ant;
 
-	free(p);
-	return lista;
+	free(antigoRabo);
+	lst->numPIDs--;
+	
+	return pid;
 }
 
-void liberaLista(No * lista) {
-	No * p = lista;
+void liberaLista(Lista * lst) {
+	No * p = lista->cabeca;
 	while(p != NULL) {
 		No * t = p->prox;
 		free(p);

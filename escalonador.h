@@ -3,12 +3,12 @@
 
 typedef struct escalonador Escalonador;
 
-Escalonador criaEscalonador(Escalonador esc);
+Escalonador criaEscalonador();
 
-Escalonador inserePID(Escalonador esc, pid_t pid);
+Escalonador inserePID(Escalonador esc, char *path);
 
-Escalonador retiraPID(Escalonador esc, pid_t pid);
+pid_t retiraPID(Escalonador esc);
 
-Escalonador liberaEscalonador(Escalonador esc);
+void liberaEscalonador(Escalonador esc);
 
 #endif

@@ -2,22 +2,28 @@
 #include <stdlib.h>
 #include "lista.h"
 
+// int bilhetesUsados[20] = {0,0,0,0,0,0,0,0}
+
 struct lista {
 
 	struct no *cabeca;
 	struct no *rabo;
 	int numPIDs;
 
-}
+};
 
 struct no {
 
 	pid_t pid;
+	int tipo;
+	int vBilhetes[20];
+	int numBilhetes;
+	int prioridade;
 	char *path;
 	struct no * prox;
 	struct no * ant;
 
-}
+};
 
 Lista * criaLista() {
 	
@@ -25,7 +31,6 @@ Lista * criaLista() {
 	nova->cabeca = NULL;
 	nova->rabo = NULL;
 	nova->numPIDs = 0;
-
 	return nova;
 }
 
@@ -33,15 +38,18 @@ No * criaNo() {
 	return NULL;
 }
 
-Lista *insereNo(Lista * lst, pid_t pid, char *path) {
+Lista *insereNo(Lista * lst, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes) {
 
 	No * novo = (No *)malloc(sizeof(No));
 	novo->pid = pid;
 	novo->path = path;
 	novo->prox = lst->cabeca;
 	novo->ant = NULL;
+	novo->tipo = tipo;
+	novo->prioridade = prioridade;
+	novo->numBilhetes = numBilhetes;
 
-	if (lista != NULL) {
+	if (lst != NULL) {
 		novo->prox->ant = novo;	
 	}
 
@@ -75,7 +83,7 @@ pid_t retiraNo(Lista *lst) {
 }
 
 void liberaLista(Lista * lst) {
-	No * p = lista->cabeca;
+	No * p = lst->cabeca;
 	while(p != NULL) {
 		No * t = p->prox;
 		free(p);

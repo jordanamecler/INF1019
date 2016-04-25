@@ -2,8 +2,10 @@
    o interpretador tem que avisar o escalonador que tipo de processo é aquele,
    RR, prioridade ou loteria, podemos criar um struct processo q tem o pid ou path do processo 
    e um campo pra dizer qual o modo q ele deve executar pq vamos fazer tudo no mesmo escalonador.
+MEIO OK - o interpretador avisa o tipo, falta criar a struct para o escalonador guardar o tipo do processo.
 
 2) o interpretador vai ler o exec.txt de 3 em 3 segundos entao temos q colocar um sleep(3) no while.
+OK
 
 3) Depois precisamos implementar cada jeito de escalonar. O inserePID do escalonador vai receber
    path e modo e ali vamos ter que colocar o 'processo' (struct processo talvez) na lista de acordo

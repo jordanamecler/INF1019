@@ -21,7 +21,7 @@ Escalonador criaEscalonador() {
 	return esc;
 }
 
-Escalonador insereProcesso(Escalonador esc, char *path) {
+Escalonador insereProcesso(Escalonador esc, char *path, int tipo) {
 	// fazer as paradas
 	pid_t pid = 0;
 	esc->listaProcessos = insereNo(esc->listaProcessos, pid, path);

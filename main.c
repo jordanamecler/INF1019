@@ -13,6 +13,7 @@ int main() {
 	int prioridade = 0, numTickets = 0;
 	Escalonador *esc;
 	pid_t pid1;
+	int tipo;
 
 	execarq = fopen("exec.txt","r");
 	if(execarq == NULL) {
@@ -29,10 +30,11 @@ int main() {
 	while(fscanf(execarq, "%s %s %s", comando, path, argumento) == 3) {
 
 		if (argumento[0] == 'r') {
+			tipo = 0;
 			printf("Round-Robin\n\n");
 		}
 		else if (argumento[0] == 'p') {
-		
+			tipo = 1;
 			prioridade = argumento[11] - '0';
 			printf("Prioridade %d\n\n", prioridade);
 
@@ -40,6 +42,7 @@ int main() {
 
 		}
 		else if (argumento[0] == 'n') {
+			tipo = 2;
 
 			if( argumento[12] == '\0' ) {
 				numTickets = argumento[11] - '0';
@@ -53,6 +56,8 @@ int main() {
 			printf("Comando invalido.\n");
 			exit(1);
 		}
+		esc = insereProcesso(esc, path, tipo);
+		sleep(3);
 	}
 
 		// if((pid1 = fork()) < 0) {

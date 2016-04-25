@@ -5,7 +5,7 @@ typedef struct escalonador Escalonador;
 
 Escalonador criaEscalonador();
 
-Escalonador inserePID(Escalonador esc, char *path);
+Escalonador inserePID(Escalonador esc, char *path, int tipo);
 
 pid_t retiraPID(Escalonador esc);
 

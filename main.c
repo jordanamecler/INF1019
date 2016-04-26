@@ -4,17 +4,24 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include "escalonador.h"
 
 int main() {
+
+
+	// Para rodar:
+
+	// gcc -Wall escalonador.c lista.c -o escalonador
+	// gcc -Wall main.c -o main
+	// ./main
+
 
 	FILE *execarq;
 	char comando[5], path[15], argumento[15];
 	int prioridade = 0, numTickets = 0;
-	Escalonador *esc;
-	pid_t pid1;
-	int tipo;
+	int tipo, status;
+	pid_t pidEscalonador;
 
+	printf("O inicio dos tempos.\n");
 	execarq = fopen("exec.txt","r");
 	if(execarq == NULL) {
 		printf("Erro ao abrir execarq.txt\n");
@@ -23,7 +30,22 @@ int main() {
 
 	// Cria escalonador
 
-	esc = criaEscalonador();
+	printf("Vamos criar o escalonador.\n");
+
+	if((pidEscalonador = fork()) < 0) {
+		printf("Erro ao criar processo escalonador filho.\n");
+		exit(1);
+	}
+	else if(pidEscalonador == 0) {
+		if(execv("escalonador", NULL) < 0) {
+			printf("Erro ao executar o programa escalonador.\n");
+		}
+	}
+	else if(pidEscalonador > 0) {
+		printf("Escalonador criado.\n");
+	}
+
+	// TODO: CRIAR MEMORIA COMPARTILHADA PARA PASSAR INFO PRO ESCALONADOR
 
 	// Interpretador
 
@@ -54,28 +76,18 @@ int main() {
 			printf("Comando invalido.\n");
 			exit(1);
 		}
-		esc = insereProcesso(esc, pid1, path, tipo, prioridade, numTickets);
+
+		// TODO: ENVIAR AQUI INFORMACOES PARA ESCALONADOR POR MEMORIA COMPARTILHADA, LEVANTAR FLAG DE NOVAS INFORMACOES PARA ESCALONADOR LER E INSERIR!
+		prioridade = 0;
+		numTickets = 0;
 		sleep(3);
 	}
 
-		// if((pid1 = fork()) < 0) {
-		// 	printf("Erro ao criar processo filho.\n");
-		// 	exit(1);
-		// }
-		// else if(pid1 == 0) {
-		// 	if(execv(path, NULL) < 0) {
-		// 		printf("Erro ao executar o programa %s.\n", path);
-		// 	}
-		// }
-		// else if(pid1 > 0) {
-		// 	int status;
-
-		// 	wait(&status);
-		// 	printf("De volta ao pai.\n");
-		// }
-
-
+	// espera escalonador terminar tudo
+	wait(&status);
 	fclose(execarq);
+
+	printf("Escalonador terminou de executar todos programas.\n");
 
 	return 0;
 }

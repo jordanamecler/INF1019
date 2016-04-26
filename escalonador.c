@@ -5,59 +5,101 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "lista.h"
-#include "escalonador.h"
 
 #define TIME_SHARE = 0.5
 
-struct escalonador {
+No *listaPrioridade = NULL;
+No *listaRoundRobin = NULL;
+No *listaLoteria = NULL;
 
-	Lista *listaPrioridade;
-	Lista *listaRoundRobin;
-	Lista *listaLoteria;
 
-};
-
-Escalonador *criaEscalonador() {
-	Escalonador *esc = (Escalonador *)malloc(sizeof(Escalonador));
-	esc->listaPrioridade = criaLista();
-	esc->listaRoundRobin = criaLista();
-	esc->listaLoteria = criaLista();
-	return esc;
-}
-
-Escalonador *insereProcesso(Escalonador *esc, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes) {
+void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	
+	pid_t pid = 0;
+
+	// Cria processo filho que será substituido por programa em 'path'
+	if((pid = fork()) < 0) {
+		printf("Erro ao criar processo filho.\n");
+		exit(1);
+	}
+	else if(pid == 0) {
+		if(execv(path, NULL) < 0) {
+			printf("Erro ao executar o programa %s.\n", path);
+		}
+	}
+	else if(pid > 0) {
+		kill(pid, SIGSTOP);
+		printf("Escalonador criou processo filho %s.\n", path);
+	}
+
+
 	if (tipo == 0) {
-		esc->listaRoundRobin = insereNo(esc->listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
+		listaRoundRobin = insereNo(listaRoundRobin, pid, path, tipo, prioridade, numBilhetes);
 	}
 	else if (tipo == 1) {
-		esc->listaPrioridade = insereNo(esc->listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
+
+		// Procura no com prioridade menor (ex:  prioridade 3 < prioridade 2) e insere antes dele
+		printf("tipo Prioridade\n");
+		No * p = listaPrioridade;
+		No * ant = NULL;
+		No * novo;
+
+		if (p != NULL) {
+			while(p->prioridade <= prioridade){
+				p = p->prox;
+			}
+			printf("achou no\n");
+			ant = p->ant;	
+		}
+		
+		novo = insereNo(p, pid, path, tipo, prioridade, numBilhetes);
+		novo->ant = ant;
 	}
 	else if (tipo == 2) {
-		esc->listaLoteria = insereNo(esc->listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
+		listaLoteria = insereNo(listaLoteria, pid, path, tipo, prioridade, numBilhetes);
 	}
-
-	return esc;
-
 }
 
-pid_t retiraPID(Escalonador *esc, int tipo) {
 
-	if (tipo == 0) {
-		return retiraNo(esc->listaRoundRobin);
-	}
-	else if (tipo == 1) {
-		return retiraNo(esc->listaPrioridade);
-	}
-	else if (tipo == 2) {
-		return retiraNo(esc->listaLoteria);
-	}
-	return -1;
+// comentei pq ainda nao modifiquei a retiraNo
+// ver comentario na retiraNo na lista.c
+
+// pid_t retiraPID( int tipo) {
+
+// 	if (tipo == 0) {
+// 		return retiraNo(listaRoundRobin);
+// 	}
+// 	else if (tipo == 1) {
+// 		return retiraNo(listaPrioridade);
+// 	}
+// 	else if (tipo == 2) {
+// 		return retiraNo(listaLoteria);
+// 	}
+// 	return -1;
+// }
+
+void liberaEscalonador() {
+	liberaLista(listaRoundRobin);
+	liberaLista(listaPrioridade);
+	liberaLista(listaLoteria);
 }
 
-void liberaEscalonador(Escalonador *esc) {
-	liberaLista(esc->listaRoundRobin);
-	liberaLista(esc->listaPrioridade);
-	liberaLista(esc->listaLoteria);
-	free(esc);
+int main() {
+
+	No *listaPrioridade = NULL;
+	No *listaRoundRobin = NULL;
+	No *listaLoteria = NULL;
+
+	// aqui vamos ter q ficar rodando esperando informacoes novas a partir do flag q a main disparar
+	// quando ler coisas nova insere em alguma lista
+	// se nao le nada novo, continua escalonando todos os processos até eles terminarem
+
+	// while(1) {
+
+		printf("escalonador esperando...\n");
+
+	// }
+
+	liberaEscalonador();
+	return 0;
 }

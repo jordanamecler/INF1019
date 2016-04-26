@@ -2,15 +2,6 @@
 #define LISTA_H
 
 typedef struct no No;
-typedef struct lista Lista;
-
-struct lista {
-
-	struct no *cabeca;
-	struct no *rabo;
-	int numPIDs;
-
-};
 
 struct no {
 
@@ -25,14 +16,10 @@ struct no {
 
 };
 
-No * criaNo();
+No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes);
 
-Lista * criaLista();
+// pid_t retiraNo(Lista *lst) ;
 
-Lista *insereNo(Lista * lst, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes);
-
-pid_t retiraNo(Lista *lst) ;
-
-void liberaLista(Lista * lst) ;
+void liberaLista(No * p) ;
 
 #endif

@@ -9,7 +9,9 @@
 
 int main()
 {
-	printf("teste1\n");
+	while(1) {
+		printf("Teste 1 rodando.\n");
+	}
 
 	return 0;
 }

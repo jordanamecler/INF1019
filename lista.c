@@ -4,65 +4,51 @@
 
 // int bilhetesUsados[20] = {0,0,0,0,0,0,0,0}
 
-Lista * criaLista() {
-	
-	Lista *nova = (Lista *)malloc(sizeof(Lista));
-	nova->cabeca = NULL;
-	nova->rabo = NULL;
-	nova->numPIDs = 0;
-	return nova;
-}
-
-No * criaNo() {
-	return NULL;
-}
-
-Lista *insereNo(Lista * lst, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes) {
+No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes) {
 
 	No * novo = (No *)malloc(sizeof(No));
 	novo->pid = pid;
 	novo->path = path;
-	novo->prox = lst->cabeca;
 	novo->ant = NULL;
 	novo->tipo = tipo;
 	novo->prioridade = prioridade;
 	novo->numBilhetes = numBilhetes;
 
-	if (lst != NULL) {
-		novo->prox->ant = novo;	
-	}
-
-	lst->cabeca = novo;
-
-	if (lst->rabo == NULL) {
-		lst->rabo = lst->cabeca;
-	}
-
-	lst->numPIDs++;
-	return lst;
+	if (p != NULL) {
+		p->ant = novo;
+	}	
+	novo->prox = p;
+	return novo;
 }
 
-pid_t retiraNo(Lista *lst) {
+// nao ajeitei retira no ainda, entao comentei
+// ficou complicado retirar por aqui, pois ou retornamos o pid e o nó se perde, ou retornamos o no e pid se perde
+// isso pq nao temos mais cabeca da lista
+// sepa retirmos o no na marra mesmo no escalonador.c
 
-	No *antigoRabo;
-	pid_t pid;
+// No * retiraNo(No *p) {
 
-	if(lst->rabo == NULL) {
-		return -1;
-	}
+// 	No *ant;
+// 	pid_t pid;
 
-	antigoRabo = lst->rabo;
-	pid = antigoRabo->pid;
-	lst->rabo = lst->rabo->ant;
+// 	if ( p == NULL ) {
+// 		return -1;
+// 	}
 
-	free(antigoRabo);
-	lst->numPIDs--;
+// 	p->prox->ant = NULL;
+
+// 	antigoRabo = lst->rabo;
+// 	pid = antigoRabo->pid;
+// 	lst->rabo = lst->rabo->ant;
+
+// 	free(antigoRabo);
+// 	lst->numPIDs--;
 	
-	return pid;
-}
+// 	return pid;
+// }
 
-void liberaLista(Lista * lst) {
-	No * p = lst->cabeca;
+void liberaLista(No * p) {
+	
 	while(p != NULL) {
 		No * t = p->prox;
 		free(p);

@@ -41,19 +41,12 @@ No *realocaNo (No **lista) {
 	No *processo;
 	No *tempLista;
 
-	processo->pid = (*lista)->pid;
-	processo->tipo = (*lista)->tipo;
-	processo->vBilhetes = (*lista)->vBilhetes;
-	processo->numBilhetes = (*lista)->numBilhetes;
-	processo->prioridade = (*lista)->prioridade;
-	processo->path = (*lista)->path;
-
 	if (*lista == NULL) {
 		return NULL;
 	}
-
+	processo = *lista;
 	*lista = (*lista)->prox;
-	free((*lista)->ant);
+	processo->prox = NULL;
 	(*lista)->ant = NULL;
 
 	tempLista = *lista;
@@ -64,7 +57,6 @@ No *realocaNo (No **lista) {
 
 	tempLista->prox = processo;
 	processo->ant = tempLista->prox;
-	processo->prox = NULL;
 
 	return processo;
 }

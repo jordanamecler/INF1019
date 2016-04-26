@@ -60,7 +60,7 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	}
 }
 
-No *retiraPID (int tipo) {
+pid_t retiraPID (int tipo) {
 
 	if (tipo == 0) {
 		return retiraNo(&listaRoundRobin);
@@ -71,7 +71,23 @@ No *retiraPID (int tipo) {
 	else if (tipo == 2) {
 		return retiraNo(&listaLoteria);
 	}
-	return NULL;
+	return -1;
+}
+
+void realocaProcesso (int tipo) {
+
+	if (tipo == 0) {
+		No *processoRealocado = realocaNo(&listaRoundRobin);
+	}
+	else if (tipo == 1) {
+		retiraNo(&listaPrioridade);
+	}
+	else if (tipo == 2) {
+		retiraNo(&listaLoteria);
+	}
+	else {
+		return;
+	}
 }
 
 void liberaEscalonador() {

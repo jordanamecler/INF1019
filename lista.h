@@ -16,10 +16,12 @@ struct no {
 
 };
 
-No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes);
+No *insereNo (No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes);
 
-No *retiraNo(No **lista) ;
+pid_t retiraNo (No **lista) ;
 
-void liberaLista(No * p) ;
+No *realocaNo (No **lista);
+
+void liberaLista (No * p) ;
 
 #endif

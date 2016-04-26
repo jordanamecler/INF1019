@@ -21,19 +21,52 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 	return novo;
 }
 
-No * retiraNo(No ** lista) {
+pid_t retiraNo(No ** lista) {
 
-	No *ant;
+	pid_t pid;
 
-	if ( (*lista) == NULL ) {
+	if (*lista == NULL) {
 		return -1;
 	}
 
-	ant = *lista;
-	(*lista) = (*lista)->prox;
+	pid = (*lista)->pid;
+	*lista = (*lista)->prox;
+
 	free((*lista)->ant);
 
-	return ant;
+	return pid;
+}
+
+No *realocaNo (No **lista) {
+	No *processo;
+	No *tempLista;
+
+	processo->pid = (*lista)->pid;
+	processo->tipo = (*lista)->tipo;
+	processo->vBilhetes = (*lista)->vBilhetes;
+	processo->numBilhetes = (*lista)->numBilhetes;
+	processo->prioridade = (*lista)->prioridade;
+	processo->path = (*lista)->path;
+
+	if (*lista == NULL) {
+		return NULL;
+	}
+
+	*lista = (*lista)->prox;
+	free((*lista)->ant);
+	(*lista)->ant = NULL;
+
+	tempLista = *lista;
+
+	while ((*tempLista)->prox != NULL) {
+		tempLista = tempLista->prox;
+	}
+
+	tempLista->prox = processo;
+	processo->ant = tempLista->prox;
+	processo->prox = NULL;
+
+	return processo;
 }
 
 void liberaLista(No * p) {

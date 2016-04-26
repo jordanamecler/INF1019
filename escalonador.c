@@ -60,23 +60,19 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	}
 }
 
+No *retiraPID (int tipo) {
 
-// comentei pq ainda nao modifiquei a retiraNo
-// ver comentario na retiraNo na lista.c
-
-// pid_t retiraPID( int tipo) {
-
-// 	if (tipo == 0) {
-// 		return retiraNo(listaRoundRobin);
-// 	}
-// 	else if (tipo == 1) {
-// 		return retiraNo(listaPrioridade);
-// 	}
-// 	else if (tipo == 2) {
-// 		return retiraNo(listaLoteria);
-// 	}
-// 	return -1;
-// }
+	if (tipo == 0) {
+		return retiraNo(&listaRoundRobin);
+	}
+	else if (tipo == 1) {
+		return retiraNo(&listaPrioridade);
+	}
+	else if (tipo == 2) {
+		return retiraNo(&listaLoteria);
+	}
+	return NULL;
+}
 
 void liberaEscalonador() {
 	liberaLista(listaRoundRobin);

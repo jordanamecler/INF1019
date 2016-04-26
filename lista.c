@@ -21,31 +21,20 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 	return novo;
 }
 
-// nao ajeitei retira no ainda, entao comentei
-// ficou complicado retirar por aqui, pois ou retornamos o pid e o nó se perde, ou retornamos o no e pid se perde
-// isso pq nao temos mais cabeca da lista
-// sepa retirmos o no na marra mesmo no escalonador.c
+No * retiraNo(No ** lista) {
 
-// No * retiraNo(No *p) {
+	No *ant;
 
-// 	No *ant;
-// 	pid_t pid;
+	if ( (*lista) == NULL ) {
+		return -1;
+	}
 
-// 	if ( p == NULL ) {
-// 		return -1;
-// 	}
+	ant = *lista;
+	(*lista) = (*lista)->prox;
+	free((*lista)->ant);
 
-// 	p->prox->ant = NULL;
-
-// 	antigoRabo = lst->rabo;
-// 	pid = antigoRabo->pid;
-// 	lst->rabo = lst->rabo->ant;
-
-// 	free(antigoRabo);
-// 	lst->numPIDs--;
-	
-// 	return pid;
-// }
+	return ant;
+}
 
 void liberaLista(No * p) {
 	

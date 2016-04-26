@@ -18,7 +18,7 @@ struct no {
 
 No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes);
 
-// pid_t retiraNo(Lista *lst) ;
+No *retiraNo(No **lista) ;
 
 void liberaLista(No * p) ;
 

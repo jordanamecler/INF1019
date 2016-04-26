@@ -4,27 +4,6 @@
 
 // int bilhetesUsados[20] = {0,0,0,0,0,0,0,0}
 
-struct lista {
-
-	struct no *cabeca;
-	struct no *rabo;
-	int numPIDs;
-
-};
-
-struct no {
-
-	pid_t pid;
-	int tipo;
-	int vBilhetes[20];
-	int numBilhetes;
-	int prioridade;
-	char *path;
-	struct no * prox;
-	struct no * ant;
-
-};
-
 Lista * criaLista() {
 	
 	Lista *nova = (Lista *)malloc(sizeof(Lista));
@@ -56,7 +35,7 @@ Lista *insereNo(Lista * lst, pid_t pid, char *path, int tipo, int prioridade, in
 	lst->cabeca = novo;
 
 	if (lst->rabo == NULL) {
-		lst->rabo == lst->cabeca;
+		lst->rabo = lst->cabeca;
 	}
 
 	lst->numPIDs++;

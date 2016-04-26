@@ -38,8 +38,6 @@ int main() {
 			prioridade = argumento[11] - '0';
 			printf("Prioridade %d\n\n", prioridade);
 
-			inserePID(esc, 
-
 		}
 		else if (argumento[0] == 'n') {
 			tipo = 2;
@@ -56,7 +54,7 @@ int main() {
 			printf("Comando invalido.\n");
 			exit(1);
 		}
-		esc = insereProcesso(esc, path, tipo);
+		esc = insereProcesso(esc, pid1, path, tipo, prioridade, numTickets);
 		sleep(3);
 	}
 

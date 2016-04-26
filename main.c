@@ -103,7 +103,7 @@ int main() {
 
 	// Interpretador
 
-	printf("O inicio dos tempos.\n");
+	printf("O inicio dos tempos.\n\n");
 	execarq = fopen("exec.txt","r");
 	if(execarq == NULL) {
 		printf("Erro ao abrir execarq.txt\n");
@@ -119,7 +119,7 @@ int main() {
 		else if (argumento[0] == 'p') {
 			*tipo = 1;
 			*prioridade = argumento[11] - '0';
-			printf("Prioridade %d\n\n", *prioridade);
+			// printf("Prioridade %d\n\n", *prioridade);
 		}
 		else if (argumento[0] == 'n') {
 			*tipo = 2;

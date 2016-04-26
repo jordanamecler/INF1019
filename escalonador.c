@@ -49,7 +49,7 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	else if (tipo == 1) {
 
 		// Procura no com prioridade menor (ex:  prioridade 3 < prioridade 2) e insere antes dele
-		printf("tipo Prioridade\n");
+		printf("tipo Prioridade, inserindo na listaPrioridade...\n");
 		No * p = listaPrioridade;
 		No * ant = NULL;
 		No * novo;
@@ -68,6 +68,10 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	else if (tipo == 2) {
 		listaLoteria = insereNo(listaLoteria, pid, path, tipo, prioridade, numBilhetes);
 	}
+}
+
+void rodaProcessoPrioridade() {
+
 }
 
 pid_t retiraPID (int tipo) {
@@ -107,10 +111,6 @@ void liberaEscalonador() {
 }
 
 int main() {
-
-	No *listaPrioridade = NULL;
-	No *listaRoundRobin = NULL;
-	No *listaLoteria = NULL;
 
 	int segmentoEnd, segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
 	char *path; //[15];
@@ -167,11 +167,13 @@ int main() {
 
 		
 		if(*novaInfoFlag == 1){
-			printf("Escalonador recebeu info...\n");
+			No *processoRodando = listaPrioridade;
 			printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );			
 			*novaInfoFlag = 0;
+			insereProcesso(path, *tipo, *prioridade, *numTickets);
+			rodaProcessoPrioridade();
 		}
-		else if (*end == 1) {
+		else if (*end == 1 && listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL) {
 			break;
 		}
 

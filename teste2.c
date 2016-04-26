@@ -15,7 +15,7 @@ int main()
 
 		// roda por um tempo e printa 10x 
 		if (i % 100000000 == 0) {
-			printf("Teste 1 rodando.\n");	
+			printf("Teste 2 rodando.\n");	
 		}
 		
 	}

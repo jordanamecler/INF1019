@@ -51,12 +51,12 @@ No *realocaNo (No **lista) {
 
 	tempLista = *lista;
 
-	while ((*tempLista)->prox != NULL) {
+	while (tempLista->prox != NULL) {
 		tempLista = tempLista->prox;
 	}
 
 	tempLista->prox = processo;
-	processo->ant = tempLista->prox;
+	processo->ant = tempLista;
 
 	return processo;
 }

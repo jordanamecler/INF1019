@@ -111,7 +111,8 @@ int main() {
 		printf("escalonador esperando...\n");
 
 	// }
-
+	
 	liberaEscalonador();
+	
 	return 0;
 }

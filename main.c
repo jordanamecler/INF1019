@@ -4,29 +4,75 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <sys/shm.h>
+#include <string.h>
+
+#define CHAVE_INFO_FLAG 8752
+#define CHAVE_TIPO 8753
+#define CHAVE_NUM_TICKETS 8754
+#define CHAVE_PRIORIDADE 8755
+#define CHAVE_PATH 8756
 
 int main() {
 
 
 	// Para rodar:
 
+	// gcc -Wall teste1.c -o teste1
 	// gcc -Wall escalonador.c lista.c -o escalonador
 	// gcc -Wall main.c -o main
 	// ./main
 
 
 	FILE *execarq;
-	char comando[5], path[15], argumento[15];
-	int prioridade = 0, numTickets = 0;
-	int tipo, status;
+	char comando[5], argumento[15];
+	int status;
 	pid_t pidEscalonador;
 
-	printf("O inicio dos tempos.\n");
-	execarq = fopen("exec.txt","r");
-	if(execarq == NULL) {
-		printf("Erro ao abrir execarq.txt\n");
+	// Memoria compartilhada
+
+	int segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
+	char *path; //[15];
+	int *numTickets, *prioridade, *tipo, *novaInfoFlag;
+
+	// Aloca memoria compartilhada
+
+	segmentoNovaInfoFlag = shmget(CHAVE_INFO_FLAG, sizeof(int), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	if( segmentoNovaInfoFlag < 0 ) { 
+		printf(" erro ao criar segmento de novainfoflag\n");
 		exit(1);
 	}
+	novaInfoFlag = (int *) shmat(segmentoNovaInfoFlag, 0, 0);
+
+	segmentoPrioridade = shmget(CHAVE_PRIORIDADE, sizeof(int), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	if( segmentoPrioridade < 0 ) { 
+		printf(" erro ao criar segmento de prioridade\n");
+		exit(1);
+	}
+	prioridade = (int *) shmat(segmentoPrioridade, 0, 0);
+
+	segmentoTipo = shmget(CHAVE_TIPO, sizeof(int), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	if( segmentoTipo < 0 ) { 
+		printf(" erro ao criar segmento de tipo\n");
+		exit(1);
+	}
+	tipo = (int *) shmat(segmentoTipo, 0, 0);
+
+	segmentoNumTickets = shmget(CHAVE_NUM_TICKETS, sizeof(int), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	if( segmentoNumTickets < 0 ) { 
+		printf(" erro ao criar segmento de numtickets\n");
+		exit(1);
+	}
+	numTickets = (int *) shmat(segmentoNumTickets, 0, 0);
+
+	segmentoPath = shmget(CHAVE_PATH, sizeof(char) * 15, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	if( segmentoPath < 0 ) { 
+		printf(" erro ao criar segmento de path\n");
+		exit(1);
+	}
+	path = (char *) shmat(segmentoPath, 0, 0);
+	*novaInfoFlag = 0;
 
 	// Cria escalonador
 
@@ -45,47 +91,69 @@ int main() {
 		printf("Escalonador criado.\n");
 	}
 
-	// TODO: CRIAR MEMORIA COMPARTILHADA PARA PASSAR INFO PRO ESCALONADOR
 
 	// Interpretador
+
+	printf("O inicio dos tempos.\n");
+	execarq = fopen("exec.txt","r");
+	if(execarq == NULL) {
+		printf("Erro ao abrir execarq.txt\n");
+		exit(1);
+	}
 
 	while(fscanf(execarq, "%s %s %s", comando, path, argumento) == 3) {
 
 		if (argumento[0] == 'r') {
-			tipo = 0;
+			*tipo = 0;
 			printf("Round-Robin\n\n");
 		}
 		else if (argumento[0] == 'p') {
-			tipo = 1;
-			prioridade = argumento[11] - '0';
-			printf("Prioridade %d\n\n", prioridade);
-
+			*tipo = 1;
+			*prioridade = argumento[11] - '0';
+			printf("Prioridade %d\n\n", *prioridade);
 		}
 		else if (argumento[0] == 'n') {
-			tipo = 2;
+			*tipo = 2;
 
 			if( argumento[12] == '\0' ) {
-				numTickets = argumento[11] - '0';
+				*numTickets = argumento[11] - '0';
 			}
 			else {
-				numTickets = (argumento[11] - '0') * 10 + argumento[12] - '0';	
+				*numTickets = (argumento[11] - '0') * 10 + argumento[12] - '0';	
 			}
-			printf("Sorteio de %d tickets\n\n", numTickets);
+			printf("Sorteio de %d tickets\n\n", *numTickets);
 		}
 		else {
 			printf("Comando invalido.\n");
 			exit(1);
 		}
 
-		// TODO: ENVIAR AQUI INFORMACOES PARA ESCALONADOR POR MEMORIA COMPARTILHADA, LEVANTAR FLAG DE NOVAS INFORMACOES PARA ESCALONADOR LER E INSERIR!
-		prioridade = 0;
-		numTickets = 0;
+		// TODO: LEVANTAR FLAG DE NOVAS INFORMACOES PARA ESCALONADOR LER E INSERIR!
+
+		// informacoes ja compartilhadas, falta receber no escalonador e tratar!!!
+		printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );
+		
 		sleep(3);
 	}
 
 	// espera escalonador terminar tudo
 	wait(&status);
 	fclose(execarq);
+
+	// libera memoria compartilhada do processo
+	shmdt(tipo);
+	shmdt(prioridade);
+	shmdt(numTickets);
+	shmdt(novaInfoFlag);
+	shmdt(path);
+
+	// libera memoria compartilhada
+	shmctl(segmentoPath, IPC_RMID, 0);
+	shmctl(segmentoTipo, IPC_RMID, 0);
+	shmctl(segmentoPrioridade, IPC_RMID, 0);
+	shmctl(segmentoNumTickets, IPC_RMID, 0);
+	shmctl(segmentoNovaInfoFlag, IPC_RMID, 0);
+
 
 	printf("Escalonador terminou de executar todos programas.\n");
 

@@ -9,8 +9,15 @@
 
 int main()
 {
-	while(1) {
-		printf("Teste 1 rodando.\n");
+	// CPU-BOUND
+	int i;
+	for( i = 0; i < 100000; i++) {
+
+		// roda por um tempo e printa 10x 
+		if (i % 10000 == 0) {
+			printf("Teste 1 rodando.\n");	
+		}
+		
 	}
 
 	return 0;

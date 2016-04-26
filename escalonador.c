@@ -8,6 +8,12 @@
 
 #define TIME_SHARE = 0.5
 
+#define CHAVE_INFO_FLAG 8752
+#define CHAVE_TIPO 8753
+#define CHAVE_NUM_TICKETS 8754
+#define CHAVE_PRIORIDADE 8755
+#define CHAVE_PATH 8756
+
 No *listaPrioridade = NULL;
 No *listaRoundRobin = NULL;
 No *listaLoteria = NULL;

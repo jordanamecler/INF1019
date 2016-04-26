@@ -4,6 +4,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <sys/shm.h>
+#include <string.h>
 #include "lista.h"
 
 #define TIME_SHARE = 0.5
@@ -13,6 +16,7 @@
 #define CHAVE_NUM_TICKETS 8754
 #define CHAVE_PRIORIDADE 8755
 #define CHAVE_PATH 8756
+#define CHAVE_END 8757
 
 No *listaPrioridade = NULL;
 No *listaRoundRobin = NULL;
@@ -108,16 +112,86 @@ int main() {
 	No *listaRoundRobin = NULL;
 	No *listaLoteria = NULL;
 
+	int segmentoEnd, segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
+	char *path; //[15];
+	int *end, *numTickets, *prioridade, *tipo, *novaInfoFlag;
+
+	segmentoNovaInfoFlag = shmget(CHAVE_INFO_FLAG, sizeof(int), S_IRUSR | S_IWUSR );
+	if( segmentoNovaInfoFlag < 0 ) { 
+		printf(" erro ao criar segmento de novainfoflag\n");
+		exit(1);
+	}
+	novaInfoFlag = (int *) shmat(segmentoNovaInfoFlag, 0, 0);
+
+	segmentoEnd = shmget(CHAVE_END, sizeof(int), S_IRUSR | S_IWUSR );
+	if( segmentoEnd < 0 ) { 
+		printf(" erro ao criar segmento de end\n");
+		exit(1);
+	}
+	end = (int *) shmat(segmentoEnd, 0, 0);
+
+
+	segmentoPrioridade = shmget(CHAVE_PRIORIDADE, sizeof(int), S_IRUSR | S_IWUSR );
+	if( segmentoPrioridade < 0 ) { 
+		printf(" erro ao criar segmento de prioridade\n");
+		exit(1);
+	}
+	prioridade = (int *) shmat(segmentoPrioridade, 0, 0);
+
+	segmentoTipo = shmget(CHAVE_TIPO, sizeof(int), S_IRUSR | S_IWUSR );
+	if( segmentoTipo < 0 ) { 
+		printf(" erro ao criar segmento de tipo\n");
+		exit(1);
+	}
+	tipo = (int *) shmat(segmentoTipo, 0, 0);
+
+	segmentoNumTickets = shmget(CHAVE_NUM_TICKETS, sizeof(int), S_IRUSR | S_IWUSR );
+	if( segmentoNumTickets < 0 ) { 
+		printf(" erro ao criar segmento de numtickets\n");
+		exit(1);
+	}
+	numTickets = (int *) shmat(segmentoNumTickets, 0, 0);
+
+	segmentoPath = shmget(CHAVE_PATH, sizeof(char) * 15, S_IRUSR | S_IWUSR );
+	if( segmentoPath < 0 ) { 
+		printf(" erro ao criar segmento de path\n");
+		exit(1);
+	}
+	path = (char *) shmat(segmentoPath, 0, 0);
+	
 	// aqui vamos ter q ficar rodando esperando informacoes novas a partir do flag q a main disparar
 	// quando ler coisas nova insere em alguma lista
 	// se nao le nada novo, continua escalonando todos os processos até eles terminarem
 
-	// while(1) {
+	while(1) {
 
-		printf("escalonador esperando...\n");
+		
+		if(*novaInfoFlag == 1){
+			printf("Escalonador recebeu info...\n");
+			printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );			
+			*novaInfoFlag = 0;
+		}
+		else if (*end == 1) {
+			break;
+		}
 
-	// }
-	
+	}
+
+	printf("Escalonador terminou de executar todos programas.\n");
+	// libera memoria compartilhada do processo
+	shmdt(tipo);
+	shmdt(prioridade);
+	shmdt(numTickets);
+	shmdt(novaInfoFlag);
+	shmdt(path);
+
+	// libera memoria compartilhada
+	shmctl(segmentoPath, IPC_RMID, 0);
+	shmctl(segmentoTipo, IPC_RMID, 0);
+	shmctl(segmentoPrioridade, IPC_RMID, 0);
+	shmctl(segmentoNumTickets, IPC_RMID, 0);
+	shmctl(segmentoNovaInfoFlag, IPC_RMID, 0);
+
 	liberaEscalonador();
 	
 	return 0;

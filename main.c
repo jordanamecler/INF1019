@@ -13,6 +13,7 @@
 #define CHAVE_NUM_TICKETS 8754
 #define CHAVE_PRIORIDADE 8755
 #define CHAVE_PATH 8756
+#define CHAVE_END 8757
 
 int main() {
 
@@ -32,9 +33,9 @@ int main() {
 
 	// Memoria compartilhada
 
-	int segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
+	int segmentoEnd,segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
 	char *path; //[15];
-	int *numTickets, *prioridade, *tipo, *novaInfoFlag;
+	int *end,*numTickets, *prioridade, *tipo, *novaInfoFlag;
 
 	// Aloca memoria compartilhada
 
@@ -44,6 +45,13 @@ int main() {
 		exit(1);
 	}
 	novaInfoFlag = (int *) shmat(segmentoNovaInfoFlag, 0, 0);
+
+	segmentoEnd = shmget(CHAVE_END, sizeof(int), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	if( segmentoEnd < 0 ) { 
+		printf(" erro ao criar segmento de end\n");
+		exit(1);
+	}
+	end = (int *) shmat(segmentoEnd, 0, 0);
 
 	segmentoPrioridade = shmget(CHAVE_PRIORIDADE, sizeof(int), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
 	if( segmentoPrioridade < 0 ) { 
@@ -73,6 +81,7 @@ int main() {
 	}
 	path = (char *) shmat(segmentoPath, 0, 0);
 	*novaInfoFlag = 0;
+	*end = 0;
 
 	// Cria escalonador
 
@@ -128,13 +137,16 @@ int main() {
 			exit(1);
 		}
 
+		*novaInfoFlag = 1;
 		// TODO: LEVANTAR FLAG DE NOVAS INFORMACOES PARA ESCALONADOR LER E INSERIR!
 
 		// informacoes ja compartilhadas, falta receber no escalonador e tratar!!!
-		printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );
+		
 		
 		sleep(3);
 	}
+
+	*end = 1;
 
 	// espera escalonador terminar tudo
 	wait(&status);
@@ -146,6 +158,7 @@ int main() {
 	shmdt(numTickets);
 	shmdt(novaInfoFlag);
 	shmdt(path);
+	shmdt(end);
 
 	// libera memoria compartilhada
 	shmctl(segmentoPath, IPC_RMID, 0);
@@ -153,9 +166,10 @@ int main() {
 	shmctl(segmentoPrioridade, IPC_RMID, 0);
 	shmctl(segmentoNumTickets, IPC_RMID, 0);
 	shmctl(segmentoNovaInfoFlag, IPC_RMID, 0);
+	shmctl(segmentoEnd, IPC_RMID, 0);
 
 
-	printf("Escalonador terminou de executar todos programas.\n");
+	printf("Main terminou de executar.\n");
 
 	return 0;
 }

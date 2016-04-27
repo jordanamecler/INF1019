@@ -52,46 +52,46 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 
 		kill(pid, SIGSTOP);
 		printf("Escalonador criou processo filho %s.\n", path);
-	}
 
 
-	if (tipo == 0) {
-		listaRoundRobin = insereNo(listaRoundRobin, pid, path, tipo, prioridade, numBilhetes);
-	}
-	else if (tipo == 1) {
-
-		// Procura no com prioridade menor (ex:  prioridade 3 < prioridade 2) e insere antes dele
-		printf("tipo Prioridade, inserindo na listaPrioridade...\n");
-		No * p = listaPrioridade;
-		No * ant = NULL;
-		No * novo;
-
-		if( p == NULL ) {
-			listaPrioridade = insereNo(listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
+		if (tipo == 0) {
+			listaRoundRobin = insereNo(listaRoundRobin, pid, path, tipo, prioridade, numBilhetes);
 		}
-		else if (p != NULL) {
-			while(p != NULL && p->prioridade <= prioridade ){
-				ant = p;
-				p = p->prox;
-			}
-			printf("achou no\n");
-			
-			novo = insereNo(p, pid, path, tipo, prioridade, numBilhetes);
-			novo->ant = ant;
+		else if (tipo == 1) {
 
-			if (ant == NULL) {
-				listaPrioridade = novo;
-			}
-			else {
-				ant->prox = novo;
-			}
-		}	
+			// Procura no com prioridade menor (ex:  prioridade 3 < prioridade 2) e insere antes dele
+			printf("tipo Prioridade, inserindo na listaPrioridade...\n");
+			No * p = listaPrioridade;
+			No * ant = NULL;
+			No * novo;
 
-		imprimeListaPrioridade(listaPrioridade);
-		printf("\n\n");
-	}
-	else if (tipo == 2) {
-		listaLoteria = insereNo(listaLoteria, pid, path, tipo, prioridade, numBilhetes);
+			if( p == NULL ) {
+				listaPrioridade = insereNo(listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
+			}
+			else if (p != NULL) {
+				while(p != NULL && p->prioridade <= prioridade ){
+					ant = p;
+					p = p->prox;
+				}
+				printf("achou no\n");
+				
+				novo = insereNo(p, pid, path, tipo, prioridade, numBilhetes);
+				novo->ant = ant;
+
+				if (ant == NULL) {
+					listaPrioridade = novo;
+				}
+				else {
+					ant->prox = novo;
+				}
+			}	
+
+			imprimeListaPrioridade(listaPrioridade);
+			printf("\n\n");
+		}
+		else if (tipo == 2) {
+			listaLoteria = insereNo(listaLoteria, pid, path, tipo, prioridade, numBilhetes);
+		}
 	}
 }
 
@@ -197,7 +197,7 @@ void childHandler(int sinal) {
 void alarmHandler(int sinal) {
 	if (listaRoundRobin != NULL) {
 		kill(listaRoundRobin->pid, SIGSTOP);
-		printf("stop depois de 0.5\n");
+		printf("stop depois de 1s\n");
 		realocaProcessoRoundRobin ();
 		if (listaPrioridade == NULL) {
 			alarm(TIME_SHARE);

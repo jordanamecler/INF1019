@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/shm.h>
 #include <string.h>
+
 #include "lista.h"
 
 #define TIME_SHARE = 0.5
@@ -137,32 +138,60 @@ void liberaEscalonador() {
 void childHandler(int sinal) {
 	printf("Child handler\n");
 	int status, tipo;
-	pid_t pid = waitpid(-1, &status, WNOWAIT);
 	No *p = listaPrioridade;
 	No *r = listaRoundRobin;
 	No *l = listaLoteria;
+	id_t id = -1;
+	siginfo_t info; 
 
-	while( p != NULL ){
-		if(p->pid == pid) {
-			tipo = 1;
-		}
-		p = p->prox;
+	waitid(P_ALL, id, &info, WNOWAIT | WEXITED );
+
+	// esta sempre entrando em CLD_STOPPED, mesmo quando deveria ser CLD_EXITED
+	printf("si_code: %d\n", info.si_code);
+	if (info.si_code == CLD_EXITED) {
+		printf("code exited\n");
 	}
-	while( r != NULL ){
-		if(r->pid == pid) {
-			tipo = 0;
-		}
-		r = r->prox;
+	else if (info.si_code == CLD_STOPPED) {
+		printf("code stopped\n");
 	}
-	while( l != NULL ){
-		if(l->pid == pid) {
-			tipo = 2;
-		}
-		l = l->prox;
+	else if (info.si_code == CLD_CONTINUED) {
+		printf("code continued\n");
 	}
-	printf("\nProcesso terminou!\n");
-	retiraPID(tipo);
-	printf("Processo retirado da lista\n\n");
+
+	// if (WIFEXITED(status) == 1){ 
+		
+		
+	// 	printf("terminou normal\n");
+		
+	// }
+	// else if( WIFCONTINUED(status) == 1 ) {
+	// 		printf("foi continued\n");
+	// 	}
+	// else if (WIFSTOPPED(status) == 1 ){
+	// 	printf("foi stoped\n");
+	// }
+
+	// while( p != NULL ){
+	// 	if(p->pid == pid) {
+	// 		tipo = 1;
+	// 	}
+	// 	p = p->prox;
+	// }
+	// while( r != NULL ){
+	// 	if(r->pid == pid) {
+	// 		tipo = 0;
+	// 	}
+	// 	r = r->prox;
+	// }
+	// while( l != NULL ){
+	// 	if(l->pid == pid) {
+	// 		tipo = 2;
+	// 	}
+	// 	l = l->prox;
+	// }
+	// printf("\nProcesso terminou!\n");
+	// retiraPID(tipo);
+	// printf("Processo retirado da lista\n\n");
 }
 
 int main() {

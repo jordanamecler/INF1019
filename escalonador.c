@@ -38,6 +38,8 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 		}
 	}
 	else if(pid > 0) {
+		int status;
+
 		kill(pid, SIGSTOP);
 		printf("Escalonador criou processo filho %s.\n", path);
 	}
@@ -135,7 +137,7 @@ void liberaEscalonador() {
 void childHandler(int sinal) {
 	printf("Child handler\n");
 	int status, tipo;
-	pid_t pid = wait(&status);
+	pid_t pid = waitpid(-1, &status, WNOWAIT);
 	No *p = listaPrioridade;
 	No *r = listaRoundRobin;
 	No *l = listaLoteria;

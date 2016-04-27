@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <sys/shm.h>
 #include <string.h>
-
+#include <time.h>
 #include "lista.h"
 
 #define TIME_SHARE 1
@@ -233,6 +233,17 @@ void rodaProcessoRoundRobin (No *processoAnterior) {
 	}
 }
 
+void rodaProcessoLoteria() {
+
+	int r;
+
+	if (listaPrioridade == NULL && listaRoundRobin == NULL && listaLoteria != NULL ) {
+
+
+
+	}
+}
+
 void realocaProcessoRoundRobin () {
 
 	No *processo;
@@ -267,6 +278,8 @@ int main() {
 	int segmentoEnd, segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
 	char *path; //[15];
 	int *end, *numTickets, *prioridade, *tipo, *novaInfoFlag;
+	
+	srand((unsigned int)time(NULL));
 
 	signal(SIGCHLD, childHandler);
 	signal(SIGALRM, alarmHandler);
@@ -318,6 +331,7 @@ int main() {
 
 		No *processoAnteriorPrioridade = listaPrioridade;
 		No *processoAnteriorRoundRobin = listaRoundRobin;
+
 		if(*novaInfoFlag == 1){
 	
 			printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );			
@@ -330,6 +344,7 @@ int main() {
 		}
 		rodaProcessoPrioridade(processoAnteriorPrioridade);
 		rodaProcessoRoundRobin(processoAnteriorRoundRobin);
+		rodaProcessoLoteria();
 	}
 
 	printf("Escalonador terminou de executar todos programas.\n");

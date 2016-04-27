@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "lista.h"
 
-// int bilhetesUsados[20] = {0,0,0,0,0,0,0,0}
+#define MAX_BILHETES 20
+
+int bilhetesUsados[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes) {
 
@@ -38,6 +41,41 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 		novo->prox = p;
 	}
 	else if (tipo == 2) {
+		int i, r;
+		No * temp = p;
+		srand((unsigned int)time(NULL));
+
+		// zera vBilhetes
+
+		for( i = 0; i < MAX_BILHETES; i++) {
+			novo->vBilhetes[i] = 0;
+		}
+		// gera bilhetes 
+
+		for(i = 0; i < numBilhetes; i++){
+			do {
+				r = rand() % MAX_BILHETES;
+			}
+			while( bilhetesUsados[r] == 1 );
+			
+			bilhetesUsados[r] = 1;
+			novo->vBilhetes[r] = 1;
+		}
+		// insere no final
+
+		if (temp != NULL) {
+			while (temp->prox != NULL) {
+				temp = temp->prox;
+			}
+			temp->prox = novo;
+			novo->ant = temp;
+			return p;
+		}
+		else {
+			return novo;
+		}
+
+
 	}
 
 	return novo;
@@ -51,66 +89,6 @@ void imprimeListaPrioridade(No * p) {
 		ant = p;
 		p = p->prox;
 	}
-
-	// Testar escadeamento da lista
-	// while (ant != NULL) {
-	// 	printf("PID: %d  prioridade:%d\n", ant->pid, ant->prioridade);
-	// 	ant = ant->ant;
-	// }
-
-}
-
-pid_t retiraNo(No ** lista) {
-
-	pid_t pid;
-	No * temp = *lista;
-
-	if (*lista == NULL) {
-		return -1;
-	}
-
-	pid = (*lista)->pid;
-	if ((*lista)->prox == NULL) {
-		free(*lista);
-		*lista = NULL;
-	}
-	else {
-		printf("iuUHDFSUAOIDHO");
-		*lista = temp->prox;
-		(*lista)->ant = NULL;
-		free(temp);
-		temp = NULL;
-
-		// **lista = (*lista)->prox;
-		// free((*lista)->ant);
-		// (*lista)->ant = NULL;
-	}
-
-	return pid;
-}
-
-No *realocaNo (No **lista) {
-	No *processo;
-	No *tempLista;
-
-	if (*lista == NULL) {
-		return NULL;
-	}
-	processo = *lista;
-	*lista = (*lista)->prox;
-	processo->prox = NULL;
-	(*lista)->ant = NULL;
-
-	tempLista = *lista;
-
-	while (tempLista->prox != NULL) {
-		tempLista = tempLista->prox;
-	}
-
-	tempLista->prox = processo;
-	processo->ant = tempLista;
-
-	return processo;
 }
 
 void liberaLista(No * p) {

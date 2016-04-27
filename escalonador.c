@@ -12,12 +12,12 @@
 
 #define TIME_SHARE = 0.5
 
-#define CHAVE_INFO_FLAG 8752
-#define CHAVE_TIPO 8753
-#define CHAVE_NUM_TICKETS 8754
-#define CHAVE_PRIORIDADE 8755
-#define CHAVE_PATH 8756
-#define CHAVE_END 8757
+#define CHAVE_INFO_FLAG 8662
+#define CHAVE_TIPO 8663
+#define CHAVE_NUM_TICKETS 8664
+#define CHAVE_PRIORIDADE 8665
+#define CHAVE_PATH 8666
+#define CHAVE_END 8667
 
 No *listaPrioridade = NULL;
 No *listaRoundRobin = NULL;
@@ -196,6 +196,9 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 		printf("trocou o processo a rodar");
 		kill(processoAnterior->pid, SIGSTOP);
 		kill(listaPrioridade->pid, SIGCONT);
+	}
+	else {
+		kill(listaPrioridade->pid, SIGCONT);	
 	}
 }
 

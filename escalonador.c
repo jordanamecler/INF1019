@@ -23,6 +23,8 @@ No *listaPrioridade = NULL;
 No *listaRoundRobin = NULL;
 No *listaLoteria = NULL;
 
+
+
 void rodaProcessoPrioridade(No *processoAnterior);
 // pid_t retiraPID (int tipo);
 void realocaProcessoRoundRobin ();
@@ -197,6 +199,9 @@ void alarmHandler(int sinal) {
 		kill(listaRoundRobin->pid, SIGSTOP);
 		printf("stop depois de 0.5\n");
 		realocaProcessoRoundRobin ();
+		if (listaPrioridade == NULL) {
+			alarm(TIME_SHARE);
+		}
 	}
 }
 
@@ -219,10 +224,10 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 
 }
 
-void rodaProcessoRoundRobin () {
+void rodaProcessoRoundRobin (No *processoAnterior) {
 	if (listaPrioridade == NULL && listaRoundRobin != NULL) {
 		kill(listaRoundRobin->pid, SIGCONT);
-		if (listaPrioridade == NULL) {
+		if (listaPrioridade == NULL && processoAnterior == NULL) {
 			alarm(TIME_SHARE);
 		}
 	}
@@ -311,7 +316,8 @@ int main() {
 	
 	while(1) {
 
-		No *processoAnterior = listaPrioridade;
+		No *processoAnteriorPrioridade = listaPrioridade;
+		No *processoAnteriorRoundRobin = listaRoundRobin;
 		if(*novaInfoFlag == 1){
 	
 			printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );			
@@ -322,8 +328,8 @@ int main() {
 		else if (*end == 1 && (listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL)) {
 			break;
 		}
-		rodaProcessoPrioridade(processoAnterior);
-		rodaProcessoRoundRobin();
+		rodaProcessoPrioridade(processoAnteriorPrioridade);
+		rodaProcessoRoundRobin(processoAnteriorRoundRobin);
 	}
 
 	printf("Escalonador terminou de executar todos programas.\n");

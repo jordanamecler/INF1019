@@ -10,14 +10,36 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 	novo->pid = pid;
 	novo->path = path;
 	novo->ant = NULL;
+	novo->prox = NULL;
 	novo->tipo = tipo;
 	novo->prioridade = prioridade;
 	novo->numBilhetes = numBilhetes;
 
-	if (p != NULL) {
-		p->ant = novo;
-	}	
-	novo->prox = p;
+	// Insere no final
+	if (tipo == 0) {
+		No * temp = p;
+		if (temp != NULL) {
+			while (temp->prox != NULL) {
+				temp = temp->prox;
+			}
+			temp->prox = novo;
+			novo->ant = temp;
+			return p;
+		}
+		else {
+			return novo;
+		}
+	}
+	// Insere no inicio
+	else if (tipo == 1) {
+		if (p != NULL) {
+			p->ant = novo;
+		}	
+		novo->prox = p;
+	}
+	else if (tipo == 2) {
+	}
+
 	return novo;
 }
 

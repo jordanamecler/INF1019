@@ -24,7 +24,7 @@ No *listaRoundRobin = NULL;
 No *listaLoteria = NULL;
 
 void rodaProcessoPrioridade(No *processoAnterior);
-pid_t retiraPID (int tipo);
+// pid_t retiraPID (int tipo);
 void realocaProcesso (int tipo);
 void liberaEscalonador();
 
@@ -109,30 +109,6 @@ void childHandler(int sinal) {
 	// printf("si_code: %d\n", info.si_code);
 	// if (info.si_code == CLD_EXITED) {
 	// 	printf("code exited\n");
-	// 	while( p != NULL ){
-	// 	    if(p->pid == pid) {
-	// 	    	tipo = 1;
-	// 	    	printf("tipo %d\n", tipo);
-	// 	    }
-	// 	    p = p->prox;
-	//     }
-	//     while( r != NULL ){
-	//     	if(r->pid == pid) {
-	//     		tipo = 0;
-	//     		printf("tipo %d", tipo);
-	//     	}
-	//     	r = r->prox;
-	//     }
-	//     while( l != NULL ){
-	//     	if(l->pid == pid) {
-	//     		tipo = 2;
-	//     		printf("tipo %d", tipo);
-	//     	}
-	//     	l = l->prox;
-	//     }
-	//     printf("%d\n", tipo);
-	//     //pid = retiraPID(tipo);
-	//     printf("Processo retirado da lista\n\n");
 	// }
 	// else if (info.si_code == CLD_STOPPED) {
 	// 	printf("code stopped\n");
@@ -163,17 +139,47 @@ void childHandler(int sinal) {
 	    }
 	    printf("\nProcesso terminou!\n");
 
-		if (listaPrioridade != NULL) {
-			if (listaPrioridade->prox == NULL) {
-				free(listaPrioridade);
-				listaPrioridade = NULL;
+	    if (tipo == 1) {
+	    	if (listaPrioridade != NULL) {
+				if (listaPrioridade->prox == NULL) {
+					free(listaPrioridade);
+					listaPrioridade = NULL;
+				}
+				else {
+					listaPrioridade = listaPrioridade->prox;
+					free(listaPrioridade->ant);
+					listaPrioridade->ant = NULL;
+				}
 			}
-			else {
-				listaPrioridade = listaPrioridade->prox;
-				free(listaPrioridade->ant);
-				listaPrioridade->ant = NULL;
-			}
-		}
+	    }
+	    else if (tipo == 0) {
+	    	if (listaRoundRobin != NULL) {
+	    		if (listaRoundRobin->prox == NULL) {
+	    			free(listaRoundRobin);
+	    			listaRoundRobin = NULL;
+	    		}
+	    		else {
+	    			listaRoundRobin = listaRoundRobin->prox;
+	    			free(listaRoundRobin->ant);
+	    			listaRoundRobin->ant = NULL;
+	    		}
+	    	}
+
+	    }
+	    else if (tipo == 2) {
+	    	if (listaLoteria != NULL) {
+	    		if (listaLoteria->prox != NULL) {
+	    			free(listaLoteria);
+	    			listaLoteria = NULL;
+	    		}
+	    		else () {
+	    			listaLoteria = listaLoteria->prox;
+	    			free(listaLoteria->ant);
+	    			listaLoteria->ant = NULL;
+	    		}
+	    	}
+	    }
+
 		
 	}
 	else if( WIFCONTINUED(status) == 1 ) {
@@ -203,32 +209,29 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 
 }
 
-pid_t retiraPID(int tipo) {
-	if (tipo == 0) {
-		return retiraNo(&listaRoundRobin);
-	}
-	else if (tipo == 1) {
-		return retiraNo(&listaPrioridade);
-	}
-	else if (tipo == 2) {
-		return retiraNo(&listaLoteria);
-	}
-	return -1;
-}
-
 void realocaProcesso (int tipo) {
 
 	if (tipo == 0) {
-		No *processoRealocado = realocaNo(&listaRoundRobin);
-	}
-	else if (tipo == 1) {
-		retiraNo(&listaPrioridade);
-	}
-	else if (tipo == 2) {
-		retiraNo(&listaLoteria);
-	}
-	else {
-		return;
+		No *processo;
+		No *tempLista;
+
+		if (listaRoundRobin != NULL && listaRoundRobin->prox != NULL) {
+
+			processo = listaRoundRobin;
+
+			listaRoundRobin = listaRoundRobin->prox;
+			processo->prox = NULL;
+			listaRoundRobin->ant = NULL;
+			tempLista = listaRoundRobin;
+
+			while (tempLista->prox != NULL) {
+				tempLista = tempLista->prox;
+			}
+
+			tempLista->prox = processo;
+			processo->ant = tempLista;
+		}
+
 	}
 }
 
@@ -289,10 +292,6 @@ int main() {
 	}
 	path = (char *) shmat(segmentoPath, 0, 0);
 	
-	// aqui vamos ter q ficar rodando esperando informacoes novas a partir do flag q a main disparar
-	// quando ler coisas nova insere em alguma lista
-	// se nao le nada novo, continua escalonando todos os processos até eles terminarem
-
 	while(1) {
 
 		No *processoAnterior = listaPrioridade;

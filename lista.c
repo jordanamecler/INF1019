@@ -33,6 +33,7 @@ void imprimeListaPrioridade(No * p) {
 
 pid_t retiraNo(No ** lista) {
 
+
 	pid_t pid;
 
 	if (*lista == NULL) {

@@ -23,6 +23,11 @@ No *listaPrioridade = NULL;
 No *listaRoundRobin = NULL;
 No *listaLoteria = NULL;
 
+void rodaProcessoPrioridade(No *processoAnterior);
+pid_t retiraPID (int tipo);
+void realocaProcesso (int tipo);
+void liberaEscalonador();
+
 
 void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	
@@ -86,6 +91,107 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	}
 }
 
+void childHandler(int sinal) {
+	printf("Child handler\n");
+	int status, tipo;
+	No *p = listaPrioridade;
+	No *r = listaRoundRobin;
+	No *l = listaLoteria;
+	id_t id = -1;
+	siginfo_t info; 
+	pid_t pid;
+
+	// pid = waitpid(-1, &status, WNOWAIT);
+	//waitid(P_ALL, id, &info, WNOWAIT | WEXITED | WCONTINUED | WSTOPPED);
+	//pid = info.si_pid;
+	pid = waitpid(-1, &status, WUNTRACED | WCONTINUED | WNOHANG);
+	// esta sempre entrando em CLD_STOPPED, mesmo quando deveria ser CLD_EXITED
+	// printf("si_code: %d\n", info.si_code);
+	// if (info.si_code == CLD_EXITED) {
+	// 	printf("code exited\n");
+	// 	while( p != NULL ){
+	// 	    if(p->pid == pid) {
+	// 	    	tipo = 1;
+	// 	    	printf("tipo %d\n", tipo);
+	// 	    }
+	// 	    p = p->prox;
+	//     }
+	//     while( r != NULL ){
+	//     	if(r->pid == pid) {
+	//     		tipo = 0;
+	//     		printf("tipo %d", tipo);
+	//     	}
+	//     	r = r->prox;
+	//     }
+	//     while( l != NULL ){
+	//     	if(l->pid == pid) {
+	//     		tipo = 2;
+	//     		printf("tipo %d", tipo);
+	//     	}
+	//     	l = l->prox;
+	//     }
+	//     printf("%d\n", tipo);
+	//     //pid = retiraPID(tipo);
+	//     printf("Processo retirado da lista\n\n");
+	// }
+	// else if (info.si_code == CLD_STOPPED) {
+	// 	printf("code stopped\n");
+	// }
+	// else if (info.si_code == CLD_CONTINUED) {
+	// 	printf("code continued\n");
+	// }
+
+	if (WIFEXITED(status) == 1){ 
+		printf("terminou normal\n");
+		while( p != NULL ){
+			if(p->pid == pid) {
+				tipo = 1;
+			}
+			p = p->prox;
+	    }
+	    while( r != NULL ){
+	    	if(r->pid == pid) {
+	    		tipo = 0;
+	    	}
+	    	r = r->prox;
+	    }
+	    while( l != NULL ){
+	    	if(l->pid == pid) {
+	    		tipo = 2;
+	    	}
+	    	l = l->prox;
+	    }
+	    printf("\nProcesso terminou!\n");
+	    
+	    if (listaPrioridade == NULL) {
+	    	printf("lista prioridade eh nula\n");
+		}
+		else {
+			printf("lista prioridade nao eh nula\n");
+			if (listaPrioridade->prox == NULL) {
+				free(listaPrioridade);
+				listaPrioridade = NULL;
+			}
+			else {
+				listaPrioridade = listaPrioridade->prox;
+				free(listaPrioridade->ant);	
+				listaPrioridade->ant = NULL;
+			}
+		}
+		
+
+	    printf("Processo retirado da lista\n\n");
+	}
+	else if( WIFCONTINUED(status) == 1 ) {
+			printf("foi continued\n");
+		}
+	else if (WIFSTOPPED(status) == 1 ){
+		printf("foi stoped\n");
+	}
+
+	
+}
+
 void rodaProcessoPrioridade(No *processoAnterior) {
 	printf("comecou a rodar\n");
 	if( processoAnterior == NULL){
@@ -99,8 +205,8 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 	}
 }
 
-pid_t retiraPID (int tipo) {
-
+pid_t retiraPID(int tipo) {
+	printf("retirapid");
 	if (tipo == 0) {
 		return retiraNo(&listaRoundRobin);
 	}
@@ -133,63 +239,6 @@ void liberaEscalonador() {
 	liberaLista(listaRoundRobin);
 	liberaLista(listaPrioridade);
 	liberaLista(listaLoteria);
-}
-
-void childHandler(int sinal) {
-	printf("Child handler\n");
-	int status, tipo;
-	No *p = listaPrioridade;
-	No *r = listaRoundRobin;
-	No *l = listaLoteria;
-	id_t id = -1;
-	siginfo_t info; 
-
-	pid_t pid = waitpid(-1, &status, WNOWAIT );
-	//waitid(P_ALL, id, &info, WNOWAIT | WEXITED );
-
-	// esta sempre entrando em CLD_STOPPED, mesmo quando deveria ser CLD_EXITED
-	// printf("si_code: %d\n", info.si_code);
-	// if (info.si_code == CLD_EXITED) {
-	// 	printf("code exited\n");
-	// }
-	// else if (info.si_code == CLD_STOPPED) {
-	// 	printf("code stopped\n");
-	// }
-	// else if (info.si_code == CLD_CONTINUED) {
-	// 	printf("code continued\n");
-	// }
-
-	if (WIFEXITED(status) == 1){ 
-		printf("terminou normal\n");
-	}
-	else if( WIFCONTINUED(status) == 1 ) {
-			printf("foi continued\n");
-		}
-	else if (WIFSTOPPED(status) == 1 ){
-		printf("foi stoped\n");
-	}
-
-	// while( p != NULL ){
-	// 	if(p->pid == pid) {
-	// 		tipo = 1;
-	// 	}
-	// 	p = p->prox;
-	// }
-	// while( r != NULL ){
-	// 	if(r->pid == pid) {
-	// 		tipo = 0;
-	// 	}
-	// 	r = r->prox;
-	// }
-	// while( l != NULL ){
-	// 	if(l->pid == pid) {
-	// 		tipo = 2;
-	// 	}
-	// 	l = l->prox;
-	// }
-	// printf("\nProcesso terminou!\n");
-	// retiraPID(tipo);
-	// printf("Processo retirado da lista\n\n");
 }
 
 int main() {
@@ -260,7 +309,7 @@ int main() {
 		}
 
 		// mudar para && dps, ta assim pra testes q nao esvazia a lista
-		else if (*end == 1 || (listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL)) {
+		else if (*end == 1 && (listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL)) {
 			break;
 		}
 

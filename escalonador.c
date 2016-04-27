@@ -10,7 +10,7 @@
 
 #include "lista.h"
 
-#define TIME_SHARE = 0.5
+#define TIME_SHARE 0.5
 
 #define CHAVE_INFO_FLAG 8662
 #define CHAVE_TIPO 8663
@@ -25,9 +25,11 @@ No *listaLoteria = NULL;
 
 void rodaProcessoPrioridade(No *processoAnterior);
 // pid_t retiraPID (int tipo);
-void realocaProcesso (int tipo);
+void realocaProcessoRoundRobin ();
 void liberaEscalonador();
-
+void childHandler(int sinal);
+void alarmHandler(int sinal);
+void rodaProcessoRoundRobin ();
 
 void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	
@@ -172,7 +174,7 @@ void childHandler(int sinal) {
 	    			free(listaLoteria);
 	    			listaLoteria = NULL;
 	    		}
-	    		else () {
+	    		else {
 	    			listaLoteria = listaLoteria->prox;
 	    			free(listaLoteria->ant);
 	    			listaLoteria->ant = NULL;
@@ -187,6 +189,13 @@ void childHandler(int sinal) {
 		}
 	else if (WIFSTOPPED(status) == 1 ){
 		printf("foi stoped\n");
+	}
+}
+
+void alarmHandler(int sinal) {
+	if (listaRoundRobin != NULL) {
+		kill(listaRoundRobin->pid, SIGSTOP);
+		realocaProcessoRoundRobin ();
 	}
 }
 
@@ -209,29 +218,33 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 
 }
 
-void realocaProcesso (int tipo) {
+void rodaProcessoRoundRobin () {
+	if (listaPrioridade == NULL && listaRoundRobin != NULL) {
+		kill(listaRoundRobin->pid, SIGCONT);
+		alarm (TIME_SHARE);
+	}
+}
 
-	if (tipo == 0) {
-		No *processo;
-		No *tempLista;
+void realocaProcessoRoundRobin () {
 
-		if (listaRoundRobin != NULL && listaRoundRobin->prox != NULL) {
+	No *processo;
+	No *tempLista;
 
-			processo = listaRoundRobin;
+	if (listaRoundRobin != NULL && listaRoundRobin->prox != NULL) {
 
-			listaRoundRobin = listaRoundRobin->prox;
-			processo->prox = NULL;
-			listaRoundRobin->ant = NULL;
-			tempLista = listaRoundRobin;
+		processo = listaRoundRobin;
 
-			while (tempLista->prox != NULL) {
-				tempLista = tempLista->prox;
-			}
+		listaRoundRobin = listaRoundRobin->prox;
+		processo->prox = NULL;
+		listaRoundRobin->ant = NULL;
+		tempLista = listaRoundRobin;
 
-			tempLista->prox = processo;
-			processo->ant = tempLista;
+		while (tempLista->prox != NULL) {
+			tempLista = tempLista->prox;
 		}
 
+		tempLista->prox = processo;
+		processo->ant = tempLista;
 	}
 }
 
@@ -248,6 +261,7 @@ int main() {
 	int *end, *numTickets, *prioridade, *tipo, *novaInfoFlag;
 
 	signal(SIGCHLD, childHandler);
+	signal(SIGALRM, alarmHandler);
 
 	segmentoNovaInfoFlag = shmget(CHAVE_INFO_FLAG, sizeof(int), S_IRUSR | S_IWUSR );
 	if( segmentoNovaInfoFlag < 0 ) { 
@@ -306,6 +320,7 @@ int main() {
 			break;
 		}
 		rodaProcessoPrioridade(processoAnterior);
+		rodaProcessoRoundRobin();
 	}
 
 	printf("Escalonador terminou de executar todos programas.\n");

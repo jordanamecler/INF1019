@@ -1,0 +1,41 @@
+Jordana Mecler - 1311354
+Leonardo Wajnsztok - 1312737
+
+Primeiro Trabalho de Sistemas de Computação – INF 1019
+
+Arquivos: interpretador.c
+		  escalonador.c
+		  lista.c
+		  lista.h
+		  teste1.c
+		  teste2.c
+		  teste3.c
+		  exec.txt
+		  entrada.txt
+		  saida.txt
+
+
+Compilação:	gcc teste1.c -o teste1
+				Primeiro programa a ser testado
+
+			gcc teste2.c -o teste2
+			Segundo programa a ser testado
+
+			gcc teste3.c -o teste3
+			Segundo programa a ser testado
+
+			gcc escalonador.c lista.c -o escalonador
+
+			gcc interpretador.c -o interpretador
+
+Execução:	./interpretador <nome da politica a ser utilizada>
+
+Formato do arquivo exec.txt para Prioridades:	exec nome_programa prioridade=<numero de 1 a 7>
+Formato do arquivo exec.txt para Round Robin:	exec nome_programa
+Formato do arquivo exec.txt para Loteria:		exec nome_programa numtickets=<numero de bilhetes a receber>
+
+Testes Prioridades:
+
+Testes Round Robin:
+
+Testes Loteria:

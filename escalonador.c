@@ -10,7 +10,7 @@
 
 #include "lista.h"
 
-#define TIME_SHARE 0.5
+#define TIME_SHARE 1
 
 #define CHAVE_INFO_FLAG 8662
 #define CHAVE_TIPO 8663
@@ -195,6 +195,7 @@ void childHandler(int sinal) {
 void alarmHandler(int sinal) {
 	if (listaRoundRobin != NULL) {
 		kill(listaRoundRobin->pid, SIGSTOP);
+		printf("stop depois de 0.5\n");
 		realocaProcessoRoundRobin ();
 	}
 }
@@ -221,7 +222,9 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 void rodaProcessoRoundRobin () {
 	if (listaPrioridade == NULL && listaRoundRobin != NULL) {
 		kill(listaRoundRobin->pid, SIGCONT);
-		alarm (TIME_SHARE);
+		if (listaPrioridade == NULL) {
+			alarm(TIME_SHARE);
+		}
 	}
 }
 

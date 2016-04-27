@@ -21,6 +21,16 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 	return novo;
 }
 
+void imprimeListaPrioridade(No * p) {
+
+	int i = 1;
+	while( p != NULL ) {
+		printf("PID: %d  prioridade:%d\n", p->pid, p->prioridade);
+		i++;
+		p = p->prox;
+	}
+}
+
 pid_t retiraNo(No ** lista) {
 
 	pid_t pid;

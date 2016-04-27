@@ -54,16 +54,28 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 		No * ant = NULL;
 		No * novo;
 
-		if (p != NULL) {
-			while(p->prioridade <= prioridade){
+		if( p == NULL ) {
+			listaPrioridade = insereNo(listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
+		}
+		else if (p != NULL) {
+			while(p->prox != NULL && p->prioridade <= prioridade ){
 				p = p->prox;
 			}
 			printf("achou no\n");
-			ant = p->ant;	
-		}
-		
-		novo = insereNo(p, pid, path, tipo, prioridade, numBilhetes);
-		novo->ant = ant;
+			ant = p;
+			novo = insereNo(p->prox, pid, path, tipo, prioridade, numBilhetes);
+			novo->ant = ant;
+
+			if (ant == NULL) {
+				listaPrioridade = novo;
+			}
+			else {
+				ant->prox = novo;
+			}
+		}	
+
+		imprimeListaPrioridade(listaPrioridade);
+		printf("\n\n");
 	}
 	else if (tipo == 2) {
 		listaLoteria = insereNo(listaLoteria, pid, path, tipo, prioridade, numBilhetes);
@@ -173,7 +185,9 @@ int main() {
 			insereProcesso(path, *tipo, *prioridade, *numTickets);
 			rodaProcessoPrioridade();
 		}
-		else if (*end == 1 && listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL) {
+
+		// mudar para && dps, ta assim pra testes q nao esvazia a lista
+		else if (*end == 1 || (listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL)) {
 			break;
 		}
 

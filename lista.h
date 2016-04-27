@@ -24,4 +24,6 @@ No *realocaNo (No **lista);
 
 void liberaLista (No * p) ;
 
+void imprimeListaPrioridade(No * p);
+
 #endif

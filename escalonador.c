@@ -144,32 +144,30 @@ void childHandler(int sinal) {
 	id_t id = -1;
 	siginfo_t info; 
 
-	waitid(P_ALL, id, &info, WNOWAIT | WEXITED );
+	pid_t pid = waitpid(-1, &status, WNOWAIT );
+	//waitid(P_ALL, id, &info, WNOWAIT | WEXITED );
 
 	// esta sempre entrando em CLD_STOPPED, mesmo quando deveria ser CLD_EXITED
-	printf("si_code: %d\n", info.si_code);
-	if (info.si_code == CLD_EXITED) {
-		printf("code exited\n");
-	}
-	else if (info.si_code == CLD_STOPPED) {
-		printf("code stopped\n");
-	}
-	else if (info.si_code == CLD_CONTINUED) {
-		printf("code continued\n");
-	}
+	// printf("si_code: %d\n", info.si_code);
+	// if (info.si_code == CLD_EXITED) {
+	// 	printf("code exited\n");
+	// }
+	// else if (info.si_code == CLD_STOPPED) {
+	// 	printf("code stopped\n");
+	// }
+	// else if (info.si_code == CLD_CONTINUED) {
+	// 	printf("code continued\n");
+	// }
 
-	// if (WIFEXITED(status) == 1){ 
-		
-		
-	// 	printf("terminou normal\n");
-		
-	// }
-	// else if( WIFCONTINUED(status) == 1 ) {
-	// 		printf("foi continued\n");
-	// 	}
-	// else if (WIFSTOPPED(status) == 1 ){
-	// 	printf("foi stoped\n");
-	// }
+	if (WIFEXITED(status) == 1){ 
+		printf("terminou normal\n");
+	}
+	else if( WIFCONTINUED(status) == 1 ) {
+			printf("foi continued\n");
+		}
+	else if (WIFSTOPPED(status) == 1 ){
+		printf("foi stoped\n");
+	}
 
 	// while( p != NULL ){
 	// 	if(p->pid == pid) {

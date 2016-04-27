@@ -11,12 +11,12 @@ int main()
 {
 	// CPU-BOUND
 	int i;
-	for( i = 0; i < 10000000; i++) {
-
+	for( i = 0; i < 10; i++) {
+		sleep(1);
 		// roda por um tempo e printa 10x 
-		if (i % 1000000 == 0) {
+	//	if (i % 100000000 == 0) {
 			printf("Teste 1 rodando.\n");	
-		}
+		//}
 		
 	}
 

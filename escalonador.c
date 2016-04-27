@@ -162,25 +162,10 @@ void childHandler(int sinal) {
 	    	l = l->prox;
 	    }
 	    printf("\nProcesso terminou!\n");
-	    
-	    if (listaPrioridade == NULL) {
-	    	printf("lista prioridade eh nula\n");
+		retiraPID(tipo);
+		if (listaPrioridade == NULL) {
+			printf("a lista eh nula\n");
 		}
-		else {
-			printf("lista prioridade nao eh nula\n");
-			if (listaPrioridade->prox == NULL) {
-				free(listaPrioridade);
-				listaPrioridade = NULL;
-			}
-			else {
-				listaPrioridade = listaPrioridade->prox;
-				free(listaPrioridade->ant);	
-				listaPrioridade->ant = NULL;
-			}
-		}
-		
-
-	    printf("Processo retirado da lista\n\n");
 	}
 	else if( WIFCONTINUED(status) == 1 ) {
 			printf("foi continued\n");
@@ -188,8 +173,6 @@ void childHandler(int sinal) {
 	else if (WIFSTOPPED(status) == 1 ){
 		printf("foi stoped\n");
 	}
-
-	
 }
 
 void rodaProcessoPrioridade(No *processoAnterior) {
@@ -200,13 +183,13 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 
 	}
 	else if( processoAnterior != listaPrioridade) {
+		printf("trocou o processo a rodar");
 		kill(processoAnterior->pid, SIGSTOP);
 		kill(listaPrioridade->pid, SIGCONT);
 	}
 }
 
 pid_t retiraPID(int tipo) {
-	printf("retirapid");
 	if (tipo == 0) {
 		return retiraNo(&listaRoundRobin);
 	}

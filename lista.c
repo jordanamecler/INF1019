@@ -23,27 +23,46 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 
 void imprimeListaPrioridade(No * p) {
 
-	int i = 1;
+	No* ant;
 	while( p != NULL ) {
 		printf("PID: %d  prioridade:%d\n", p->pid, p->prioridade);
-		i++;
+		ant = p;
 		p = p->prox;
 	}
+
+	// Testar escadeamento da lista
+	// while (ant != NULL) {
+	// 	printf("PID: %d  prioridade:%d\n", ant->pid, ant->prioridade);
+	// 	ant = ant->ant;
+	// }
+
 }
 
 pid_t retiraNo(No ** lista) {
 
-
 	pid_t pid;
+	No * temp = *lista;
 
 	if (*lista == NULL) {
 		return -1;
 	}
 
 	pid = (*lista)->pid;
-	*lista = (*lista)->prox;
+	if ((*lista)->prox == NULL) {
+		free(*lista);
+		*lista = NULL;
+	}
+	else {
+		printf("iuUHDFSUAOIDHO");
+		*lista = temp->prox;
+		(*lista)->ant = NULL;
+		free(temp);
+		temp = NULL;
 
-	free((*lista)->ant);
+		// **lista = (*lista)->prox;
+		// free((*lista)->ant);
+		// (*lista)->ant = NULL;
+	}
 
 	return pid;
 }

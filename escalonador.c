@@ -83,8 +83,17 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 	}
 }
 
-void rodaProcessoPrioridade() {
+void rodaProcessoPrioridade(No *processoAnterior) {
+	printf("comecou a rodar\n");
+	if( processoAnterior == NULL){
+		printf("primeiro a rodar\n");
+		kill(listaPrioridade->pid, SIGCONT);
 
+	}
+	else if( processoAnterior != listaPrioridade) {
+		kill(processoAnterior->pid, SIGSTOP);
+		kill(listaPrioridade->pid, SIGCONT);
+	}
 }
 
 pid_t retiraPID (int tipo) {
@@ -123,11 +132,44 @@ void liberaEscalonador() {
 	liberaLista(listaLoteria);
 }
 
+void childHandler(int sinal) {
+	printf("Child handler\n");
+	int status, tipo;
+	pid_t pid = wait(&status);
+	No *p = listaPrioridade;
+	No *r = listaRoundRobin;
+	No *l = listaLoteria;
+
+	while( p != NULL ){
+		if(p->pid == pid) {
+			tipo = 1;
+		}
+		p = p->prox;
+	}
+	while( r != NULL ){
+		if(r->pid == pid) {
+			tipo = 0;
+		}
+		r = r->prox;
+	}
+	while( l != NULL ){
+		if(l->pid == pid) {
+			tipo = 2;
+		}
+		l = l->prox;
+	}
+	printf("\nProcesso terminou!\n");
+	retiraPID(tipo);
+	printf("Processo retirado da lista\n\n");
+}
+
 int main() {
 
 	int segmentoEnd, segmentoNovaInfoFlag, segmentoPath, segmentoNumTickets, segmentoPrioridade, segmentoTipo;
 	char *path; //[15];
 	int *end, *numTickets, *prioridade, *tipo, *novaInfoFlag;
+
+	signal(SIGCHLD, childHandler);
 
 	segmentoNovaInfoFlag = shmget(CHAVE_INFO_FLAG, sizeof(int), S_IRUSR | S_IWUSR );
 	if( segmentoNovaInfoFlag < 0 ) { 
@@ -180,11 +222,12 @@ int main() {
 
 		
 		if(*novaInfoFlag == 1){
-			No *processoRodando = listaPrioridade;
+			No *processoAnterior = listaPrioridade;
+
 			printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );			
 			*novaInfoFlag = 0;
 			insereProcesso(path, *tipo, *prioridade, *numTickets);
-			rodaProcessoPrioridade();
+			rodaProcessoPrioridade(processoAnterior);
 		}
 
 		// mudar para && dps, ta assim pra testes q nao esvazia a lista

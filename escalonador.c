@@ -58,12 +58,13 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 			listaPrioridade = insereNo(listaPrioridade, pid, path, tipo, prioridade, numBilhetes);
 		}
 		else if (p != NULL) {
-			while(p->prox != NULL && p->prioridade <= prioridade ){
+			while(p != NULL && p->prioridade <= prioridade ){
+				ant = p;
 				p = p->prox;
 			}
 			printf("achou no\n");
-			ant = p;
-			novo = insereNo(p->prox, pid, path, tipo, prioridade, numBilhetes);
+			
+			novo = insereNo(p, pid, path, tipo, prioridade, numBilhetes);
 			novo->ant = ant;
 
 			if (ant == NULL) {

@@ -162,10 +162,20 @@ void childHandler(int sinal) {
 	    	l = l->prox;
 	    }
 	    printf("\nProcesso terminou!\n");
-		retiraPID(tipo);
-		if (listaPrioridade == NULL) {
-			printf("a lista eh nula\n");
+
+		if (listaPrioridade != NULL) {
+			printf("AQUI");
+			if (listaPrioridade->prox == NULL) {
+				free(listaPrioridade);
+				listaPrioridade = NULL;
+			}
+			else {
+				listaPrioridade = listaPrioridade->prox;
+				free(listaPrioridade->ant);
+				listaPrioridade->ant = NULL;
+			}
 		}
+		
 	}
 	else if( WIFCONTINUED(status) == 1 ) {
 			printf("foi continued\n");
@@ -176,7 +186,7 @@ void childHandler(int sinal) {
 }
 
 void rodaProcessoPrioridade(No *processoAnterior) {
-	printf("comecou a rodar\n");
+	// printf("comecou a rodar\n");
 	if( processoAnterior == NULL){
 		printf("primeiro a rodar\n");
 		kill(listaPrioridade->pid, SIGCONT);
@@ -281,21 +291,18 @@ int main() {
 
 	while(1) {
 
-		
+		No *processoAnterior = listaPrioridade;
 		if(*novaInfoFlag == 1){
-			No *processoAnterior = listaPrioridade;
-
+	
 			printf("path: %s, tipo: %d, numTickets: %d, prioridade: %d \n", path, *tipo, *numTickets, * prioridade );			
 			*novaInfoFlag = 0;
 			insereProcesso(path, *tipo, *prioridade, *numTickets);
-			rodaProcessoPrioridade(processoAnterior);
 		}
-
 		// mudar para && dps, ta assim pra testes q nao esvazia a lista
 		else if (*end == 1 && (listaPrioridade == NULL && listaLoteria == NULL && listaRoundRobin == NULL)) {
 			break;
 		}
-
+		rodaProcessoPrioridade(processoAnterior);
 	}
 
 	printf("Escalonador terminou de executar todos programas.\n");

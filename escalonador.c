@@ -164,7 +164,6 @@ void childHandler(int sinal) {
 	    printf("\nProcesso terminou!\n");
 
 		if (listaPrioridade != NULL) {
-			printf("AQUI");
 			if (listaPrioridade->prox == NULL) {
 				free(listaPrioridade);
 				listaPrioridade = NULL;
@@ -187,19 +186,21 @@ void childHandler(int sinal) {
 
 void rodaProcessoPrioridade(No *processoAnterior) {
 	// printf("comecou a rodar\n");
-	if( processoAnterior == NULL){
-		printf("primeiro a rodar\n");
-		kill(listaPrioridade->pid, SIGCONT);
+	if (listaPrioridade != NULL) {
+		if( processoAnterior == NULL){
+			printf("primeiro a rodar\n");
+			kill(listaPrioridade->pid, SIGCONT);
+		}
+		else if( processoAnterior != listaPrioridade) {
+			printf("trocou o processo a rodar");
+			kill(processoAnterior->pid, SIGSTOP);
+			kill(listaPrioridade->pid, SIGCONT);
+		}
+		else {
+			kill(listaPrioridade->pid, SIGCONT);	
+		}
+	}
 
-	}
-	else if( processoAnterior != listaPrioridade) {
-		printf("trocou o processo a rodar");
-		kill(processoAnterior->pid, SIGSTOP);
-		kill(listaPrioridade->pid, SIGCONT);
-	}
-	else {
-		kill(listaPrioridade->pid, SIGCONT);	
-	}
 }
 
 pid_t retiraPID(int tipo) {

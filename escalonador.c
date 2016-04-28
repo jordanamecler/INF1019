@@ -232,23 +232,23 @@ void alarmHandler(int sinal) {
 		}
 	}
 	else if (listaLoteria != NULL) {
-		No *tempLista = listaLoteria;
-		No *novaLista = listaLoteria;
+		No *tempLista;
+		No *novaLista;
 		int r, achou = 0 ;
 
 		printf("Handler loteria\n");
-		
+		tempLista = listaLoteria;
 		while (tempLista != NULL ) {
 			if(tempLista->vBilhetes[bilheteSorteado] == 1) {
 				kill(listaLoteria->pid, SIGSTOP);
 
-				do {
+				while( achou == 0 ) {
 					r = rand() % MAX_BILHETES;
-
+					novaLista = listaLoteria;
 					while( novaLista != NULL ) {
 
 						if( novaLista->vBilhetes[r] == 1) {
-							printf("Achei o bilhete premiado!\n");
+							printf("Bilhete premiado! %d\n", r);
 							achou = 1;
 							bilheteSorteado = r;
 							kill(novaLista->pid, SIGCONT);
@@ -256,14 +256,11 @@ void alarmHandler(int sinal) {
 							if( listaPrioridade == NULL && listaRoundRobin == NULL ) {
 								alarm(TIME_SHARE);
 							}
-							break;
+							return;
 						}
 						novaLista = novaLista->prox;
 					}
 				}
-				while( achou == 0 );
-
-				break;
 			}
 			tempLista = tempLista->prox;
 		}
@@ -302,21 +299,22 @@ void rodaProcessoRoundRobin (No *processoAnterior) {
 void rodaProcessoLoteria(No* processoAnterior) {
 
 	int r;
-	No* tempLista = listaLoteria;
+	No* tempLista;
 	int achou = 0;
 	int i;
 	//imprimeListaLoteria(listaLoteria);
 
 	if (listaPrioridade == NULL && listaRoundRobin == NULL && listaLoteria != NULL ) {
 
-		if ( processoAnterior == NULL ) {
+		if ( processoAnterior == NULL && processoAnterior != listaLoteria) {
 			printf("Roda loteria\n");
 			
-			do {
+			while( achou == 0 ) {
 				r = rand() % MAX_BILHETES;
+				tempLista = listaLoteria;
 				while( tempLista != NULL ) {
 					if( tempLista->vBilhetes[r] == 1) {
-						printf("Achei o bilhete premiado!\n");
+						printf("Achei o bilhete premiado! %d\n", r);
 						achou = 1;
 						bilheteSorteado = r;
 						kill(tempLista->pid, SIGCONT);
@@ -325,13 +323,12 @@ void rodaProcessoLoteria(No* processoAnterior) {
 							printf("Primeiro alarme loteria\n");
 							alarm(TIME_SHARE);
 						}
-						break;
+						return;
 					}
 					tempLista = tempLista->prox;
 				}
 
 			}
-			while( achou == 0 );
 			
 		}
 	}

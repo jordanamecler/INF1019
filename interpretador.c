@@ -22,7 +22,7 @@ int main() {
 
 	// gcc -Wall teste1.c -o teste1
 	// gcc -Wall escalonador.c lista.c -o escalonador
-	// gcc -Wall main.c -o main
+	// gcc -Wall interpretador.c -o interpretador
 	// ./main
 
 

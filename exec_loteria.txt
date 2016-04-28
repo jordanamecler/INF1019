@@ -1,0 +1,3 @@
+exec teste1 numtickets=5
+exec teste2 numtickets=5
+exec teste3 numtickets=10

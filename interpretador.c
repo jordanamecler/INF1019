@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/shm.h>
 #include <string.h>
+#include <string.h>
 
 #define CHAVE_INFO_FLAG 8662
 #define CHAVE_TIPO 8663
@@ -15,7 +16,7 @@
 #define CHAVE_PATH 8666
 #define CHAVE_END 8667
 
-int main() {
+int main(int argc, char *argv[]) {
 
 
 	// Para rodar:
@@ -30,6 +31,7 @@ int main() {
 	char comando[5], argumento[15];
 	int status;
 	pid_t pidEscalonador;
+	char *tipoEscalonamento = argv[1];
 
 	// Memoria compartilhada
 
@@ -103,8 +105,19 @@ int main() {
 
 	// Interpretador
 
+
 	printf("O inicio dos tempos.\n\n");
-	execarq = fopen("exec.txt","r");
+
+	if (strcmp(tipoEscalonamento, "prioridades")) {
+		execarq = fopen("exec_prioridades.txt","r");
+	}
+	else if (strcmp(tipoEscalonamento, "roundrobin")) {
+		execarq = fopen("exec_roundrobin.txt","r");
+	}
+	else if (strcmp(tipoEscalonamento, "loteria")) {
+		execarq = fopen("exec_loteria.txt","r");
+	}
+	
 	if(execarq == NULL) {
 		printf("Erro ao abrir execarq.txt\n");
 		exit(1);
@@ -119,7 +132,7 @@ int main() {
 		else if (argumento[0] == 'p') {
 			*tipo = 1;
 			*prioridade = argumento[11] - '0';
-			// printf("Prioridade %d\n\n", *prioridade);
+			 printf("Prioridade %d\n\n", *prioridade);
 		}
 		else if (argumento[0] == 'n') {
 			*tipo = 2;

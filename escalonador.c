@@ -10,7 +10,7 @@
 #include <time.h>
 #include "lista.h"
 
-#define TIME_SHARE 1
+#define TIME_SHARE 2
 #define MAX_BILHETES 20
 
 #define CHAVE_INFO_FLAG 8662
@@ -25,6 +25,7 @@ No *listaRoundRobin = NULL;
 No *listaLoteria = NULL;
 
 int bilheteSorteado = -1;
+int processoLoteriaExcluido = 0;
 
 
 void rodaProcessoPrioridade(No *processoAnterior);
@@ -62,7 +63,7 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 		else if (tipo == 1) {
 
 			// Procura no com prioridade menor (ex:  prioridade 3 < prioridade 2) e insere antes dele
-			printf("tipo Prioridade, inserindo na listaPrioridade...\n");
+			//printf("tipo Prioridade, inserindo na listaPrioridade...\n");
 			No * p = listaPrioridade;
 			No * ant = NULL;
 			No * novo;
@@ -75,7 +76,7 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 					ant = p;
 					p = p->prox;
 				}
-				printf("achou no\n");
+				//printf("achou no\n");
 				
 				novo = insereNo(p, pid, path, tipo, prioridade, numBilhetes);
 				novo->ant = ant;
@@ -98,7 +99,7 @@ void insereProcesso(char *path, int tipo, int prioridade, int numBilhetes) {
 }
 
 void childHandler(int sinal) {
-	printf("Child handler\n");
+	//printf("Child handler\n");
 	int status, tipo;
 	No *p = listaPrioridade;
 	No *r = listaRoundRobin;
@@ -124,7 +125,7 @@ void childHandler(int sinal) {
 	// }
 
 	if (WIFEXITED(status) == 1){ 
-		printf("terminou normal\n");
+		//printf("terminou normal\n");
 		while( p != NULL ){
 			if(p->pid == pid) {
 				tipo = 1;
@@ -184,20 +185,18 @@ void childHandler(int sinal) {
 	    			No *noRetirado;
 
 	    			while( tempLista != NULL ) {
-
+					
 	    				if( tempLista->vBilhetes[bilheteSorteado] == 1) {
 	    					if(tempLista->ant == NULL) {
-	    						noRetirado = tempLista;
-	    						listaLoteria = tempLista->prox;
-	    						free(noRetirado);
+	    						listaLoteria = listaLoteria->prox;
+	    						free(listaLoteria->ant);
 	    						listaLoteria->ant = NULL;
 	    					}
 	    					else if( tempLista->prox == NULL ){
-	    						noRetirado = tempLista;
+	    						free(tempLista->ant->prox);
 	    						tempLista->ant->prox = NULL;
-	    						free(noRetirado);
 	    					}
-	    					else {
+	    					else {	
 	    						tempLista->ant->prox = tempLista->prox;
 		    					tempLista->prox->ant = tempLista->ant;
 		    					free(tempLista);
@@ -210,15 +209,16 @@ void childHandler(int sinal) {
 
 	    		}
 	    	}
+	    	processoLoteriaExcluido = 1;
 	    }
 
 		
 	}
 	else if( WIFCONTINUED(status) == 1 ) {
-			printf("foi continued\n");
+			//printf("foi continued\n");
 		}
 	else if (WIFSTOPPED(status) == 1 ){
-		printf("foi stoped\n");
+		//printf("foi stoped\n");
 	}
 }
 
@@ -236,11 +236,13 @@ void alarmHandler(int sinal) {
 		No *novaLista;
 		int r, achou = 0 ;
 
-		printf("Handler loteria\n");
+		//printf("Handler loteria\n");
 		tempLista = listaLoteria;
+		
 		while (tempLista != NULL ) {
-			if(tempLista->vBilhetes[bilheteSorteado] == 1) {
-				kill(listaLoteria->pid, SIGSTOP);
+			if(tempLista->vBilhetes[bilheteSorteado] == 1 || processoLoteriaExcluido == 1) {
+				processoLoteriaExcluido = 0;
+				kill(tempLista->pid, SIGSTOP);
 
 				while( achou == 0 ) {
 					r = rand() % MAX_BILHETES;
@@ -252,10 +254,7 @@ void alarmHandler(int sinal) {
 							achou = 1;
 							bilheteSorteado = r;
 							kill(novaLista->pid, SIGCONT);
-
-							if( listaPrioridade == NULL && listaRoundRobin == NULL ) {
-								alarm(TIME_SHARE);
-							}
+							alarm(TIME_SHARE);
 							return;
 						}
 						novaLista = novaLista->prox;
@@ -271,11 +270,11 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 	// printf("comecou a rodar\n");
 	if (listaPrioridade != NULL) {
 		if( processoAnterior == NULL){
-			printf("primeiro a rodar\n");
+			//printf("primeiro a rodar\n");
 			kill(listaPrioridade->pid, SIGCONT);
 		}
 		else if( processoAnterior != listaPrioridade) {
-			printf("trocou o processo a rodar");
+			//printf("trocou o processo a rodar");
 			kill(processoAnterior->pid, SIGSTOP);
 			kill(listaPrioridade->pid, SIGCONT);
 		}

@@ -10,14 +10,13 @@
 int main()
 {
 	// CPU-BOUND
-	int i, j;
-	for( i = 0; i < 5000000; i++) {
+	long int i;
+	for( i = 0; i < 5; i++) {
 		// roda por um tempo e printa 10x 
-		for (j = 0; j < 5000; j++) {
-			if ((j % 1000 == 0) && (i % 1000000 == 0)) {
-				printf("Teste 4 rodando.\n");	
-			}
-		}
+		//if ((i % 50000) == 0) {
+			printf("Teste 4 rodando.\n");	
+		//}
+		sleep(1);
 	}
 
 	return 0;

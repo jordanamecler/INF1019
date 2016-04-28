@@ -1,0 +1,3 @@
+exec teste1 rr
+exec teste2 rr
+exec teste3 rr

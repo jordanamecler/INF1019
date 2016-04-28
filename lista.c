@@ -60,6 +60,7 @@ No *insereNo(No * p, pid_t pid, char *path, int tipo, int prioridade, int numBil
 			
 			bilhetesUsados[r] = 1;
 			novo->vBilhetes[r] = 1;
+			printf("bilhetes premiados %d\n",r);
 		}
 		// insere no final
 
@@ -86,6 +87,24 @@ void imprimeListaPrioridade(No * p) {
 	No* ant;
 	while( p != NULL ) {
 		printf("PID: %d  prioridade:%d\n", p->pid, p->prioridade);
+		ant = p;
+		p = p->prox;
+	}
+}
+
+void imprimeListaLoteria(No * p) {
+
+	No* ant;
+	int i;
+
+	while( p != NULL ) {
+		printf("PID: %d", p->pid);
+		for ( i = 0; i < MAX_BILHETES; ++i) {
+			if(p->vBilhetes[i] == 1) {
+				printf(" %d", i);
+			}
+		}
+		printf("\n");
 		ant = p;
 		p = p->prox;
 	}

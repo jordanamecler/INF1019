@@ -11,6 +11,7 @@
 #include "lista.h"
 
 #define TIME_SHARE 1
+#define MAX_BILHETES 20
 
 #define CHAVE_INFO_FLAG 8662
 #define CHAVE_TIPO 8663
@@ -23,6 +24,7 @@ No *listaPrioridade = NULL;
 No *listaRoundRobin = NULL;
 No *listaLoteria = NULL;
 
+int bilheteSorteado = -1;
 
 
 void rodaProcessoPrioridade(No *processoAnterior);
@@ -172,14 +174,40 @@ void childHandler(int sinal) {
 	    }
 	    else if (tipo == 2) {
 	    	if (listaLoteria != NULL) {
-	    		if (listaLoteria->prox != NULL) {
+
+	    		if (listaLoteria->prox == NULL) {
 	    			free(listaLoteria);
 	    			listaLoteria = NULL;
 	    		}
 	    		else {
-	    			listaLoteria = listaLoteria->prox;
-	    			free(listaLoteria->ant);
-	    			listaLoteria->ant = NULL;
+	    			No *tempLista = listaLoteria;
+	    			No *noRetirado;
+
+	    			while( tempLista != NULL ) {
+
+	    				if( tempLista->vBilhetes[bilheteSorteado] == 1) {
+	    					if(tempLista->ant == NULL) {
+	    						noRetirado = tempLista;
+	    						listaLoteria = tempLista->prox;
+	    						free(noRetirado);
+	    						listaLoteria->ant = NULL;
+	    					}
+	    					else if( tempLista->prox == NULL ){
+	    						noRetirado = tempLista;
+	    						tempLista->ant->prox = NULL;
+	    						free(noRetirado);
+	    					}
+	    					else {
+	    						tempLista->ant->prox = tempLista->prox;
+		    					tempLista->prox->ant = tempLista->ant;
+		    					free(tempLista);
+	
+	    					}					
+	    					break;
+	    				}
+	    				tempLista = tempLista->prox;
+	    			}
+
 	    		}
 	    	}
 	    }
@@ -201,6 +229,43 @@ void alarmHandler(int sinal) {
 		realocaProcessoRoundRobin ();
 		if (listaPrioridade == NULL) {
 			alarm(TIME_SHARE);
+		}
+	}
+	else if (listaLoteria != NULL) {
+		No *tempLista = listaLoteria;
+		No *novaLista = listaLoteria;
+		int r, achou = 0 ;
+
+		printf("Handler loteria\n");
+		
+		while (tempLista != NULL ) {
+			if(tempLista->vBilhetes[bilheteSorteado] == 1) {
+				kill(listaLoteria->pid, SIGSTOP);
+
+				do {
+					r = rand() % MAX_BILHETES;
+
+					while( novaLista != NULL ) {
+
+						if( novaLista->vBilhetes[r] == 1) {
+							printf("Achei o bilhete premiado!\n");
+							achou = 1;
+							bilheteSorteado = r;
+							kill(novaLista->pid, SIGCONT);
+
+							if( listaPrioridade == NULL && listaRoundRobin == NULL ) {
+								alarm(TIME_SHARE);
+							}
+							break;
+						}
+						novaLista = novaLista->prox;
+					}
+				}
+				while( achou == 0 );
+
+				break;
+			}
+			tempLista = tempLista->prox;
 		}
 	}
 }
@@ -226,6 +291,7 @@ void rodaProcessoPrioridade(No *processoAnterior) {
 
 void rodaProcessoRoundRobin (No *processoAnterior) {
 	if (listaPrioridade == NULL && listaRoundRobin != NULL) {
+		// VERIFICAR ISSO AQUI
 		kill(listaRoundRobin->pid, SIGCONT);
 		if (listaPrioridade == NULL && processoAnterior == NULL) {
 			alarm(TIME_SHARE);
@@ -233,14 +299,41 @@ void rodaProcessoRoundRobin (No *processoAnterior) {
 	}
 }
 
-void rodaProcessoLoteria() {
+void rodaProcessoLoteria(No* processoAnterior) {
 
 	int r;
+	No* tempLista = listaLoteria;
+	int achou = 0;
+	int i;
+	//imprimeListaLoteria(listaLoteria);
 
 	if (listaPrioridade == NULL && listaRoundRobin == NULL && listaLoteria != NULL ) {
 
+		if ( processoAnterior == NULL ) {
+			printf("Roda loteria\n");
+			
+			do {
+				r = rand() % MAX_BILHETES;
+				while( tempLista != NULL ) {
+					if( tempLista->vBilhetes[r] == 1) {
+						printf("Achei o bilhete premiado!\n");
+						achou = 1;
+						bilheteSorteado = r;
+						kill(tempLista->pid, SIGCONT);
 
+						if( listaPrioridade == NULL && listaRoundRobin == NULL ) {
+							printf("Primeiro alarme loteria\n");
+							alarm(TIME_SHARE);
+						}
+						break;
+					}
+					tempLista = tempLista->prox;
+				}
 
+			}
+			while( achou == 0 );
+			
+		}
 	}
 }
 
@@ -331,6 +424,7 @@ int main() {
 
 		No *processoAnteriorPrioridade = listaPrioridade;
 		No *processoAnteriorRoundRobin = listaRoundRobin;
+		No *processoAnteriorLoteria    = listaLoteria;
 
 		if(*novaInfoFlag == 1){
 	
@@ -344,7 +438,7 @@ int main() {
 		}
 		rodaProcessoPrioridade(processoAnteriorPrioridade);
 		rodaProcessoRoundRobin(processoAnteriorRoundRobin);
-		rodaProcessoLoteria();
+		rodaProcessoLoteria(processoAnteriorLoteria);
 	}
 
 	printf("Escalonador terminou de executar todos programas.\n");

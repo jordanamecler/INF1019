@@ -18,7 +18,7 @@ struct no {
 
 No *insereNo (No * p, pid_t pid, char *path, int tipo, int prioridade, int numBilhetes);
 
-
+void imprimeListaLoteria(No * p);
 
 void liberaLista (No * p) ;
 

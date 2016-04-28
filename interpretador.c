@@ -130,7 +130,6 @@ int main() {
 			else {
 				*numTickets = (argumento[11] - '0') * 10 + argumento[12] - '0';	
 			}
-			printf("Sorteio de %d tickets\n\n", *numTickets);
 		}
 		else {
 			printf("Comando invalido.\n");

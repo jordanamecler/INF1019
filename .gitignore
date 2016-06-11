@@ -1,7 +1,1 @@
 .DS_Store
-
-# ignore binary c files
-main
-teste1
-
-*.log

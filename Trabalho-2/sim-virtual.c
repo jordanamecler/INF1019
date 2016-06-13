@@ -9,7 +9,26 @@ typedef struct tabelaPagina {
 	int r;
 	int m;
 	int ultimoAcesso;	
+
 } TabelaPagina;
+
+int testaInputs(int paginaTam, int memoriaFisicaTam, char *algoritmo) {
+	int ret = 1;
+
+	if(paginaTam < 8 || paginaTam > 32) {
+		printf("Tamanho de pagina invalido. Deve ser entre 8 e 32KB.\n");
+		ret = 0;
+	}
+	if(memoriaFisicaTam < 128 || memoriaFisicaTam > (16 * 1024)) {
+		printf("Tamanho de memoria fisica invalido. Deve ser entre 128KB e 16MB.\n");
+		ret = 0;
+	}
+	if(strcmp(algoritmo, "LRU") && strcmp(algoritmo, "NRU") && strcmp(algoritmo, "SEG")) {
+		printf("Algoritmo nao reconhecido.\n");
+		ret = 0;
+	}
+	return ret;
+}
 
 unsigned pegaIndicePagina(unsigned addr, int paginaTam) {
 
@@ -76,6 +95,7 @@ int buscaEspacoVazioVetor(int *vetor, int vetorTam) {
 void atualizaTabelaLRU(TabelaPagina * vetorTabelaPaginas, int *vetorPaginas, int vetorPaginasTam) {
 	int i;
 	int indice;
+	
 	for(i = 0; i < vetorPaginasTam; i++) {
 		indice = vetorPaginas[i];
 		if(indice != -1) {
@@ -83,6 +103,41 @@ void atualizaTabelaLRU(TabelaPagina * vetorTabelaPaginas, int *vetorPaginas, int
 		}
 	}
 }
+
+int escolhePaginaParaRemover(TabelaPagina *vetorTabelaPaginas, int *vetorPaginas, int vetorPaginasTam, char *algoritmo) {
+
+	if(algoritmo[0] == 'L'){
+		// LRU
+		return -1;
+	}
+	else if(algoritmo[0] == 'N') {
+		// NRU
+
+		int i, teste;
+		int prioridadeR[] = {0,0,1,1};
+		int prioridadeM[] = {0,1,0,1};
+
+		for(teste = 0; teste < 4; teste++) {
+			for(i = 0; i < vetorPaginasTam; i++) {
+
+				TabelaPagina *pag = &vetorTabelaPaginas[vetorPaginas[i]];
+				if(pag->r == prioridadeR[teste] && pag->m == prioridadeM[teste]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	else if(algoritmo[0] == 'S') {
+		// SEG
+
+		
+		
+		return -1;
+	}
+	return -1;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -120,19 +175,7 @@ int main(int argc, char *argv[])
 
 	// Testa input
 
-	if(paginaTam < 8 || paginaTam > 32) {
-		printf("Tamanho de pagina invalido. Deve ser entre 8 e 32KB.\n");
-		exit(1);
-	}
-	if(memoriaFisicaTam < 128 || memoriaFisicaTam > (16 * 1024)) {
-		printf("Tamanho de memoria fisica invalido. Deve ser entre 128KB e 16MB.\n");
-		exit(1);
-	}
-
-	if(strcmp(algoritmo, "LRU") && strcmp(algoritmo, "NRU") && strcmp(algoritmo, "SEG")) {
-		printf("Algoritmo nao reconhecido.\n");
-		exit(1);
-	}
+	if(!testaInputs(paginaTam, memoriaFisicaTam, algoritmo)) exit(1);
 
 	// Cria vetor de paginas da memoria
 
@@ -185,17 +228,29 @@ int main(int argc, char *argv[])
 			if(paginaEstaNaMemoria == -1) {
 				faltasDePagina++;
 
+				// Procurar pagina a ser removida para adicionar pagina nova de acordo com o algoritmo escolhido
 
+				pos = escolhePaginaParaRemover(vetorTabelaPaginas, vetorPaginas, vetorPaginasTam, algoritmo);
+
+				TabelaPagina *ultimaPagina = &vetorTabelaPaginas[vetorPaginas[pos]];
+				if(ultimaPagina->m == 1) paginasEscritas++;
+
+				ultimaPagina->r = 0;
+				ultimaPagina->m = 0;
 			}
 		}
 
 		// Pagina esta na memoria, deve ser atualizada
 
-		TabelaPagina pag = vetorTabelaPaginas[indicePagina];
-		pag.ultimoAcesso = time;
+		TabelaPagina *pag = &vetorTabelaPaginas[indicePagina];
+		pag->ultimoAcesso = time;
 
-		if(rw == 'R') pag.r = 1;
-		else if(rw == 'W') pag.w = 1;
+		if(rw == 'R') {
+			pag->r = 1;
+		}
+		else if(rw == 'W') {
+			pag->m = 1;
+		}
 
 		time++;
 	}

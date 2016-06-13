@@ -13,12 +13,12 @@ typedef struct tabelaPagina {
 
 unsigned pegaIndicePagina(unsigned addr, int paginaTam) {
 
-	return addr >> log2(paginaTam << 10);;
+	return addr >> (int)log2(paginaTam << 10);
 }
 
 unsigned pegaTamanhoTabelaPaginas(int paginaTam) {
 
-	return pow(2, 32 - log2(paginaTam << 10));
+	return pow(2, 32 - (int)log2(paginaTam << 10));
 }
 
 int * criaVetorPagina(int vetorPaginasTam) {
@@ -42,7 +42,7 @@ TabelaPagina * criaVetorTabelaPaginas(int paginaTam) {
 	int tabelaPaginaTam = pegaTamanhoTabelaPaginas(paginaTam);
 	TabelaPagina *vetorTabelaPaginas;
 
-	printf("Tamanha tabela de paginas: %d\n", tabelaPaginaTam);
+	printf("Tamanho tabela de paginas: %d\n", tabelaPaginaTam);
 
 	vetorTabelaPaginas = (TabelaPagina *)malloc(sizeof(TabelaPagina) * tabelaPaginaTam);
 	if(!vetorTabelaPaginas) {
@@ -65,6 +65,24 @@ int buscaPaginaNaMemoria(int *vetorPaginas, int vetorPaginasTam, int indicePagin
 	return -1;
 }
 
+int buscaEspacoVazioVetor(int *vetor, int vetorTam) {
+	int i;
+	for(i = 0; i < vetorTam; i++) {
+		if(vetor[i] == -1) return i;
+	}
+	return -1;
+}
+
+void atualizaTabelaLRU(TabelaPagina * vetorTabelaPaginas, int *vetorPaginas, int vetorPaginasTam) {
+	int i;
+	int indice;
+	for(i = 0; i < vetorPaginasTam; i++) {
+		indice = vetorPaginas[i];
+		if(indice != -1) {
+			vetorTabelaPaginas[indice].r = 0;
+		}
+	}
+}
 
 int main(int argc, char *argv[])
 {
@@ -75,8 +93,8 @@ int main(int argc, char *argv[])
 
 	FILE *arq;
 	unsigned addr, page;
-	char algoritmo[5], path[20];
-	int paginaTam, memoriaFisicaTam, rw, time = 0;
+	char algoritmo[5], path[20], fullpath[30], rw;
+	int paginaTam, memoriaFisicaTam, time = 0;
 	int faltasDePagina = 0;
 	int paginasEscritas = 0;
 
@@ -96,8 +114,8 @@ int main(int argc, char *argv[])
 	printf("Executando o simulador...\n");
 
 	printf("Arquivo de entrada: %s\n", path);
-	printf("Tamanho da memoria fisica: %d\n", memoriaFisicaTam);
-	printf("Tamanho das paginas: %d\n", paginaTam);
+	printf("Tamanho da memoria fisica: %d KB\n", memoriaFisicaTam);
+	printf("Tamanho das paginas: %d KB\n", paginaTam);
 	printf("Alg de substituicao: %s\n", algoritmo);
 
 	// Testa input
@@ -108,6 +126,11 @@ int main(int argc, char *argv[])
 	}
 	if(memoriaFisicaTam < 128 || memoriaFisicaTam > (16 * 1024)) {
 		printf("Tamanho de memoria fisica invalido. Deve ser entre 128KB e 16MB.\n");
+		exit(1);
+	}
+
+	if(strcmp(algoritmo, "LRU") && strcmp(algoritmo, "NRU") && strcmp(algoritmo, "SEG")) {
+		printf("Algoritmo nao reconhecido.\n");
 		exit(1);
 	}
 
@@ -124,7 +147,10 @@ int main(int argc, char *argv[])
 
 	// Le o log
 
-	arq = fopen(path, "r");
+	strcpy(fullpath, "logs/");
+	strcat(fullpath, path);
+
+	arq = fopen(fullpath, "r");
 	if( arq == NULL ) {
 		printf("Erro ao abrir o arquivo %s\n", path);
 		exit(1);
@@ -132,17 +158,51 @@ int main(int argc, char *argv[])
 
 	while( fscanf(arq, "%x %c", &addr, &rw) == 2 ) {
 
+		int pos;
 		int indicePagina = pegaIndicePagina(addr, paginaTam);
 		int paginaEstaNaMemoria = buscaPaginaNaMemoria(vetorPaginas, vetorPaginasTam, indicePagina);
 
-		// Pagina nao esta na memoria
-		if(!paginaEstaNaMemoria) {
+		// Para o alg NRU, a cada interrupcao do reloogio, seta-se r = 0
 
+		if( !(strcmp(algoritmo, "NRU")) && !(time % 100) ) {
+			atualizaTabelaLRU(vetorTabelaPaginas, vetorPaginas, vetorPaginasTam);
 		}
 
+		// Pagina nao esta na memoria
+
+		if(paginaEstaNaMemoria == -1) {
+
+			// Checa se existe espaco vazio na memoria para a pagina
+
+			pos = buscaEspacoVazioVetor(vetorPaginas, vetorPaginasTam);
+			if(pos != -1) {
+				vetorPaginas[pos] = indicePagina;	
+				paginaEstaNaMemoria = 1;
+			} 
+
+			// Nao ha espaco vazio na memoria
+
+			if(paginaEstaNaMemoria == -1) {
+				faltasDePagina++;
+
+
+			}
+		}
+
+		// Pagina esta na memoria, deve ser atualizada
+
+		TabelaPagina pag = vetorTabelaPaginas[indicePagina];
+		pag.ultimoAcesso = time;
+
+		if(rw == 'R') pag.r = 1;
+		else if(rw == 'W') pag.w = 1;
 
 		time++;
 	}
+
+	printf("Numero de faltas de paginas: %d\n", faltasDePagina);
+	printf("Numero de paginas escritas: %d\n", paginasEscritas);
+	printf("time: %d\n", time );
 
 	// Libera memoria alocada
 

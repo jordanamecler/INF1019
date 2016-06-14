@@ -281,6 +281,7 @@ int main(int argc, char *argv[])
 			// Pagina nao esta na memoria
 			// Checa se existe espaco vazio na memoria para a pagina
 
+			faltasDePagina++;
 			pos = buscaEspacoVazioVetor(vetorPaginas, vetorPaginasTam);
 
 			// Existe espaco vazio na memoria para a pagina
@@ -290,8 +291,6 @@ int main(int argc, char *argv[])
 
 				// Nao ha espaco vazio na memoria
 				// Procurar pagina a ser removida para adicionar pagina nova de acordo com o algoritmo escolhido
-
-				faltasDePagina++;
 
 				pos = escolhePaginaParaRemover(vetorTabelaPaginas, vetorPaginas, vetorPaginasTam, algoritmo);
 

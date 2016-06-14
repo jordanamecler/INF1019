@@ -107,10 +107,32 @@ void atualizaTabelaLRU(TabelaPagina * vetorTabelaPaginas, int *vetorPaginas, int
 int escolhePaginaParaRemover(TabelaPagina *vetorTabelaPaginas, int *vetorPaginas, int vetorPaginasTam, char *algoritmo) {
 
 	if(algoritmo[0] == 'L'){
+
 		// LRU
-		return -1;
+
+		int i;
+		int minNotAccessedPageVectorIndex = -1;
+	    int minNotAccessedPageTime;
+	    int minPageVectorIndex = 0;
+	    int minPageTime = vetorTabelaPaginas[vetorPaginas[0]].ultimoAcesso;
+
+	    for(i = 0; i < vetorPaginasTam; ++i) {
+	        if(vetorTabelaPaginas[vetorPaginas[i]].ultimoAcesso < minPageTime) {
+	            minPageVectorIndex = i;
+	            minPageTime = vetorTabelaPaginas[vetorPaginas[i]].ultimoAcesso;
+	            if(vetorTabelaPaginas[vetorPaginas[i]].r == 0) {
+	                minNotAccessedPageVectorIndex = i;
+	                minNotAccessedPageTime = minPageTime;
+	            }
+	        }
+	    }
+
+	    if(minNotAccessedPageVectorIndex != -1)
+	        return minNotAccessedPageVectorIndex;
+	    return minPageVectorIndex;
 	}
 	else if(algoritmo[0] == 'N') {
+
 		// NRU
 
 		int i, teste;
@@ -126,18 +148,27 @@ int escolhePaginaParaRemover(TabelaPagina *vetorTabelaPaginas, int *vetorPaginas
 				}
 			}
 		}
-		return -1;
 	}
 	else if(algoritmo[0] == 'S') {
+
 		// SEG
 
-		
-		
-		return -1;
+		do {
+			int indice = vetorPaginas[0];
+			int i;
+
+			for(i = 0; i < vetorPaginasTam - 1; i++) {
+				vetorPaginas[i] = vetorPaginas[i + 1];
+			}
+			vetorPaginas[vetorPaginasTam - 1] = indice;
+
+			if(vetorTabelaPaginas[indice].r == 0) return vetorPaginasTam - 1;
+			else vetorTabelaPaginas[indice].r = 0;
+
+		} while(1);
 	}
 	return -1;
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -211,36 +242,43 @@ int main(int argc, char *argv[])
 			atualizaTabelaLRU(vetorTabelaPaginas, vetorPaginas, vetorPaginasTam);
 		}
 
-		// Pagina nao esta na memoria
+		// Testa de pagina esta na memoria
 
 		if(paginaEstaNaMemoria == -1) {
 
+			// Pagina nao esta na memoria
 			// Checa se existe espaco vazio na memoria para a pagina
 
 			pos = buscaEspacoVazioVetor(vetorPaginas, vetorPaginasTam);
-			if(pos != -1) {
-				vetorPaginas[pos] = indicePagina;	
-				paginaEstaNaMemoria = 1;
-			} 
 
-			// Nao ha espaco vazio na memoria
+			// Existe espaco vazio na memoria para a pagina
 
-			if(paginaEstaNaMemoria == -1) {
-				faltasDePagina++;
+			if(pos != -1) vetorPaginas[pos] = indicePagina;
+			else {
 
+				// Nao ha espaco vazio na memoria
 				// Procurar pagina a ser removida para adicionar pagina nova de acordo com o algoritmo escolhido
+
+				faltasDePagina++;
 
 				pos = escolhePaginaParaRemover(vetorTabelaPaginas, vetorPaginas, vetorPaginasTam, algoritmo);
 
-				TabelaPagina *ultimaPagina = &vetorTabelaPaginas[vetorPaginas[pos]];
-				if(ultimaPagina->m == 1) paginasEscritas++;
+				if(pos != -1) {
+					TabelaPagina *paginaRetirada = &vetorTabelaPaginas[vetorPaginas[pos]];
+					if(paginaRetirada->m == 1) paginasEscritas++;
 
-				ultimaPagina->r = 0;
-				ultimaPagina->m = 0;
+					paginaRetirada->r = 0;
+					paginaRetirada->m = 0;
+
+					vetorPaginas[pos] = indicePagina;	
+				}
+				else {
+					printf("Nao achou pagina para retirar.\n");
+				}
 			}
 		}
 
-		// Pagina esta na memoria, deve ser atualizada
+		// Pagina deve ser atualizada
 
 		TabelaPagina *pag = &vetorTabelaPaginas[indicePagina];
 		pag->ultimoAcesso = time;

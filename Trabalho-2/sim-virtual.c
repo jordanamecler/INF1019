@@ -183,6 +183,8 @@ int main(int argc, char *argv[])
 	int paginaTam, memoriaFisicaTam, time = 0;
 	int faltasDePagina = 0;
 	int paginasEscritas = 0;
+	int debug = 0;
+	int passo = 0;
 
 	int *vetorPaginas;
 	int vetorPaginasTam;
@@ -197,21 +199,28 @@ int main(int argc, char *argv[])
 	paginaTam =  atoi(argv[3]);
 	memoriaFisicaTam = atoi(argv[4]) ;
 
-	printf("Executando o simulador...\n");
-
-	printf("Arquivo de entrada: %s\n", path);
-	printf("Tamanho da memoria fisica: %d KB\n", memoriaFisicaTam);
-	printf("Tamanho das paginas: %d KB\n", paginaTam);
-	printf("Alg de substituicao: %s\n", algoritmo);
+	if(argc > 5) {
+		int i;
+		for(i = 5; i < argc; i++){
+			if(!strcmp(argv[i], "-d")) debug = 1;
+			else if(!strcmp(argv[i], "-p")) passo = 1;
+			else {
+				printf("Opcao %s nao existe.\n", argv[i]);
+				exit(1);
+			}
+		}
+	}
 
 	// Testa input
 
 	if(!testaInputs(paginaTam, memoriaFisicaTam, algoritmo)) exit(1);
 
+	printf("Executando o simulador...\n");
+
 	// Cria vetor de paginas da memoria
 
 	vetorPaginasTam = memoriaFisicaTam / paginaTam;
-	printf("Tamanho vetor de paginas: %d\n",vetorPaginasTam );
+	
 
 	vetorPaginas = criaVetorPagina(vetorPaginasTam);
 
@@ -235,6 +244,29 @@ int main(int argc, char *argv[])
 		int pos;
 		int indicePagina = pegaIndicePagina(addr, paginaTam);
 		int paginaEstaNaMemoria = buscaPaginaNaMemoria(vetorPaginas, vetorPaginasTam, indicePagina);
+
+		// Modo detalhado
+
+		if(debug) {
+			int i;
+			printf("\nAlgoritmo: %s Time: %d\n", algoritmo, time);
+			printf("Endereco: %x Modo: %c\n", addr, rw);
+			printf("Indice: %d\n", indicePagina);
+
+			if(passo) {
+				printf("Memoria:\n");
+				printf("  ____________\n" );
+				for(i = 0; i < vetorPaginasTam; i++) {
+					printf(" |  R:%d M:%d   |\n", vetorTabelaPaginas[vetorPaginas[i]].r, vetorTabelaPaginas[vetorPaginas[i]].m);
+					printf(" |Ind:%-8d|\n", vetorPaginas[i]);
+					printf(" |____________|\n");
+				}	
+			}
+			
+			printf("Falta de pagina: %d\n", faltasDePagina);
+			printf("Paginas escritas: %d\n", paginasEscritas);
+		}
+
 
 		// Para o alg NRU, a cada interrupcao do reloogio, seta-se r = 0
 
@@ -264,6 +296,9 @@ int main(int argc, char *argv[])
 				pos = escolhePaginaParaRemover(vetorTabelaPaginas, vetorPaginas, vetorPaginasTam, algoritmo);
 
 				if(pos != -1) {
+
+					if(debug) printf("Posicao da pagina removida: %d\n", pos);
+
 					TabelaPagina *paginaRetirada = &vetorTabelaPaginas[vetorPaginas[pos]];
 					if(paginaRetirada->m == 1) paginasEscritas++;
 
@@ -277,7 +312,9 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-
+		else {
+			if(debug) printf("Pagina ja esta na memoria.\n");
+		}
 		// Pagina deve ser atualizada
 
 		TabelaPagina *pag = &vetorTabelaPaginas[indicePagina];
@@ -291,11 +328,23 @@ int main(int argc, char *argv[])
 		}
 
 		time++;
+
+		if(passo) {
+			char prox;
+			printf("Aperte qualquer tecla para proximo passo\n's': sair do passo-a-passo\n");
+			scanf(" %c", &prox);
+			if(prox == 's') passo = 0;
+		}
 	}
 
+	printf("Arquivo de entrada: %s\n", path);
+	printf("Tamanho da memoria fisica: %d KB\n", memoriaFisicaTam);
+	printf("Tamanho das paginas: %d KB\n", paginaTam);
+	printf("Alg de substituicao: %s\n", algoritmo);
+	if(debug) printf("Tamanho vetor de paginas: %d\n",vetorPaginasTam );
 	printf("Numero de faltas de paginas: %d\n", faltasDePagina);
 	printf("Numero de paginas escritas: %d\n", paginasEscritas);
-	printf("time: %d\n", time );
+	if(debug) printf("time: %d\n", time );
 
 	// Libera memoria alocada
 

@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
 
 		// Modo detalhado
 
-		if(debug) {
+		if(debug || passo) {
 			int i;
 			printf("\nAlgoritmo: %s Time: %d\n", algoritmo, time);
 			printf("Endereco: %x Modo: %c\n", addr, rw);
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 
 				if(pos != -1) {
 
-					if(debug) printf("Posicao da pagina removida: %d\n", pos);
+					if(debug || passo) printf("Posicao da pagina removida: %d\n", pos);
 
 					TabelaPagina *paginaRetirada = &vetorTabelaPaginas[vetorPaginas[pos]];
 					if(paginaRetirada->m == 1) paginasEscritas++;
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		else {
-			if(debug) printf("Pagina ja esta na memoria.\n");
+			if(debug || passo) printf("Pagina ja esta na memoria.\n");
 		}
 		// Pagina deve ser atualizada
 
@@ -341,10 +341,10 @@ int main(int argc, char *argv[])
 	printf("Tamanho da memoria fisica: %d KB\n", memoriaFisicaTam);
 	printf("Tamanho das paginas: %d KB\n", paginaTam);
 	printf("Alg de substituicao: %s\n", algoritmo);
-	if(debug) printf("Tamanho vetor de paginas: %d\n",vetorPaginasTam );
+	if(debug || passo) printf("Tamanho vetor de paginas: %d\n",vetorPaginasTam );
 	printf("Numero de faltas de paginas: %d\n", faltasDePagina);
 	printf("Numero de paginas escritas: %d\n", paginasEscritas);
-	if(debug) printf("time: %d\n", time );
+	if(debug || passo) printf("time: %d\n", time );
 
 	// Libera memoria alocada
 

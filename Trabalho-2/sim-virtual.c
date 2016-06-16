@@ -9,7 +9,7 @@
 // (O)  MM YA.   ,A9 MM    `Mb    MM  8M   MM    MM    MM  8M   MM        M  `YM'   MM YM.    , YM.    , MM YM.    ,  MM
 //  Ymmm9   `Ybmd9'.JMML.   `Wbmd"MML.`Moo9^Yo..JMML  JMML.`Moo9^Yo.    .JML. `'  .JMML.`Mbmmd'  YMbmd'.JMML.`Mbmmd'.JMML.
 
-// matricula da jordana aqui
+// 1311354
 
 
 
@@ -147,25 +147,25 @@ int escolhePaginaParaRemover(TabelaPagina *vetorTabelaPaginas, int *vetorPaginas
 		// LRU
 
 		int i;
-		int minNotAccessedPageVectorIndex = -1;
-	    int minNotAccessedPageTime;
-	    int minPageVectorIndex = 0;
-	    int minPageTime = vetorTabelaPaginas[vetorPaginas[0]].ultimoAcesso;
+		int menorIndiceNaoAcessado = -1;
+	    int menorTempoNaoAcessado;
+	    int menorIndiceVetorer = 0;
+	    int menorTempoPag = vetorTabelaPaginas[vetorPaginas[0]].ultimoAcesso;
 
 	    for(i = 0; i < vetorPaginasTam; ++i) {
-	        if(vetorTabelaPaginas[vetorPaginas[i]].ultimoAcesso < minPageTime) {
-	            minPageVectorIndex = i;
-	            minPageTime = vetorTabelaPaginas[vetorPaginas[i]].ultimoAcesso;
+	        if(vetorTabelaPaginas[vetorPaginas[i]].ultimoAcesso < menorTempoPag) {
+	            menorIndiceVetor = i;
+	            menorTempoPag = vetorTabelaPaginas[vetorPaginas[i]].ultimoAcesso;
 	            if(vetorTabelaPaginas[vetorPaginas[i]].r == 0) {
-	                minNotAccessedPageVectorIndex = i;
-	                minNotAccessedPageTime = minPageTime;
+	                menorIndiceNaoAcessado = i;
+	                menorTempoNaoAcessado = menorTempoPag;
 	            }
 	        }
 	    }
 
-	    if(minNotAccessedPageVectorIndex != -1)
-	        return minNotAccessedPageVectorIndex;
-	    return minPageVectorIndex;
+	    if(menorIndiceNaoAcessado != -1)
+	        return menorIndiceNaoAcessado;
+	    return menorIndiceVetor;
 	}
 	else if(algoritmo[0] == 'N') {
 

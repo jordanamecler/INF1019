@@ -149,7 +149,7 @@ int escolhePaginaParaRemover(TabelaPagina *vetorTabelaPaginas, int *vetorPaginas
 		int i;
 		int menorIndiceNaoAcessado = -1;
 	    int menorTempoNaoAcessado;
-	    int menorIndiceVetorer = 0;
+	    int menorIndiceVetor = 0;
 	    int menorTempoPag = vetorTabelaPaginas[vetorPaginas[0]].ultimoAcesso;
 
 	    for(i = 0; i < vetorPaginasTam; ++i) {

@@ -1,3 +1,39 @@
+
+
+//                                ,,                                                                     ,,
+//    `7MMF'                    `7MM                                    `7MMM.     ,MMF'               `7MM
+//      MM                        MM                                      MMMb    dPMM                   MM
+//      MM  ,pW"Wq.`7Mb,od8  ,M""bMM   ,6"Yb.  `7MMpMMMb.   ,6"Yb.        M YM   ,M MM  .gP"Ya   ,p6"bo  MM  .gP"Ya `7Mb,od8
+//      MM 6W'   `Wb MM' "',AP    MM  8)   MM    MM    MM  8)   MM        M  Mb  M' MM ,M'   Yb 6M'  OO  MM ,M'   Yb  MM' "'
+//      MM 8M     M8 MM    8MI    MM   ,pm9MM    MM    MM   ,pm9MM        M  YM.P'  MM 8M"""""" 8M       MM 8M""""""  MM
+// (O)  MM YA.   ,A9 MM    `Mb    MM  8M   MM    MM    MM  8M   MM        M  `YM'   MM YM.    , YM.    , MM YM.    ,  MM
+//  Ymmm9   `Ybmd9'.JMML.   `Wbmd"MML.`Moo9^Yo..JMML  JMML.`Moo9^Yo.    .JML. `'  .JMML.`Mbmmd'  YMbmd'.JMML.`Mbmmd'.JMML.
+
+// matricula da jordana aqui
+
+
+
+
+//          .gP"Ya
+//         ,M'   Yb
+//         8M""""""
+//         YM.    ,
+//          `Mbmmd'
+
+
+
+//                                                                  ,,                                           ,,
+// `7MMF'                                                         `7MM               `7MMF'     A     `7MF'      db                               mm          `7MM
+//   MM                                                             MM                 `MA     ,MA     ,V                                         MM            MM
+//   MM         .gP"Ya   ,pW"Wq.`7MMpMMMb.   ,6"Yb.  `7Mb,od8  ,M""bMM  ,pW"Wq.         VM:   ,VVM:   ,V ,6"Yb.`7MM `7MMpMMMb.  ,pP"Ybd M"""MMV mmMMmm ,pW"Wq.  MM  ,MP'
+//   MM        ,M'   Yb 6W'   `Wb MM    MM  8)   MM    MM' "',AP    MM 6W'   `Wb         MM.  M' MM.  M'8)   MM  MM   MM    MM  8I   `" '  AMV    MM  6W'   `Wb MM ;Y
+//   MM      , 8M"""""" 8M     M8 MM    MM   ,pm9MM    MM    8MI    MM 8M     M8         `MM A'  `MM A'  ,pm9MM  MM   MM    MM  `YMMMa.   AMV     MM  8M     M8 MM;Mm
+//   MM     ,M YM.    , YA.   ,A9 MM    MM  8M   MM    MM    `Mb    MM YA.   ,A9          :MM;    :MM;  8M   MM  MM   MM    MM  L.   I8  AMV  ,   MM  YA.   ,A9 MM `Mb.
+// .JMMmmmmMMM  `Mbmmd'  `Ybmd9'.JMML  JMML.`Moo9^Yo..JMML.   `Wbmd"MML.`Ybmd9'            VF      VF   `Moo9^Yo.MM .JMML  JMML.M9mmmP' AMMmmmM   `Mbmo`Ybmd9'.JMML. YA.
+//                                                                                                            QO MP
+//                                                                                                            `bmP
+// 1312737
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

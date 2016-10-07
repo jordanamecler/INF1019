@@ -1,6 +1,6 @@
 # Computer Systems INF1019 @ PUC-Rio
 
-Projects 1 and 2 for the subject "Computer Systems" ("Sistemas da Computação" - ptBR) of code INF1019 offered by PUC-Rio.
+Projects for the Computer Systems course ("Sistemas da Computação" - ptBR) of code INF1019 at PUC-Rio.
 
 #### Professor
 
